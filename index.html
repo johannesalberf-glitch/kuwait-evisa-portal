@@ -1,0 +1,1724 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#003366">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Demonstration prototype of a Kuwait eVisa status inquiry and verification portal. Not an official Ministry of Interior service.">
+<title>eVisa Status Inquiry · State of Kuwait (Demonstration)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 29 6.5v12.4C29 25.8 23.2 29.6 16 30 8.8 29.6 3 25.8 3 18.9V6.5Z' fill='%23003366'/%3E%3Cpath d='M9 19.5h14l-2.2 4h-9.6Z' fill='%23c8a951'/%3E%3Cpath d='M16.6 9.5 21 19.5h-4.4Z' fill='%23e8d7a0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<!-- Tailwind is pinned to v3: the v4 play CDN emits oklch() colors that html2canvas cannot parse for the PNG export. -->
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 100: '#e6ecf4', 600: '#1a5da3', 700: '#0b4a86', 800: '#00305c', DEFAULT: '#003366', 900: '#002447' },
+        gold: { 200: '#f0e2bd', 300: '#e2cd97', 500: '#c8a951', 600: '#a8812a', 700: '#7d5e15' },
+        green: { 50: '#eaf3ee', 100: '#d3e7db', DEFAULT: '#0d5132', 700: '#0a3f27' },
+        sand: { 50: '#faf7f0', 200: '#ece4d3', 300: '#ded2b8' },
+        mist: '#cdd8e5',
+        ink: '#16233a',
+        alert: '#8a2424'
+      },
+      fontFamily: {
+        sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { color-scheme: light; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { background: #f2f4f7; }
+  /* dvh where supported, vh fallback for webviews that still miss it */
+  .shell { min-height: 100vh; }
+  @supports (height: 100dvh) { .shell { min-height: 100dvh; } }
+  /* 16px minimum stops the iOS focus zoom on inputs */
+  input, select, textarea { font-size: 16px; }
+  .ar-doc { font-family: Amiri, 'IBM Plex Sans Arabic', serif; }
+  .ar-ui { font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, system-ui, sans-serif; }
+  .mono-doc { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  .section-rule { display: flex; align-items: center; gap: 8px; }
+  .section-rule::before, .section-rule::after { content: ''; flex: 1 1 auto; height: 1px; background: #d9c9a3; }
+  .section-rule > i { width: 6px; height: 6px; flex: none; transform: rotate(45deg); background: #a8812a; }
+  .paper { box-shadow: 0 1px 2px rgba(16, 36, 58, .08), 0 10px 30px -22px rgba(16, 36, 58, .4); }
+  .skeleton { background: #e4e9f0; animation: kwPulse 1.3s ease-in-out infinite; }
+  @keyframes kwPulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+  .watermark { font-family: Amiri, 'IBM Plex Sans Arabic', serif; color: #003366; opacity: .07; }
+  details > summary { cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .is-hidden { display: none !important; }
+  .nav-link { display: inline-flex; flex: none; align-items: center; gap: 8px; min-height: 48px; padding: 0 12px; color: #cdd8e5; border-bottom: 2px solid transparent; text-decoration: none; }
+  .nav-link:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+  .nav-link[aria-current="page"] { color: #fff; border-bottom-color: #c8a951; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } .skeleton { animation: none } }
+  @media print {
+    body { background: #fff !important; }
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+    @page { size: A4 portrait; margin: 12mm; }
+  }
+</style>
+</head>
+<body class="shell flex flex-col text-ink antialiased">
+<div hidden aria-hidden="true" class="border-green bg-green-50 border-green-100 text-green-700 text-gold-700 border-gold-600 text-alert border-alert bg-alert hover:bg-[#fdf4f4] hover:bg-[#6f1c1c] px-2.5 py-1 leading-relaxed min-h-[36px] min-h-[44px] max-w-full overflow-x-auto min-w-[900px] space-y-3 col-span-2 truncate divide-y divide-slate-100 hover:bg-white hover:bg-sand-50 hover:bg-navy-800 hover:text-ink"></div>
+<a href="#inquiry" class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-[4px] focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-navy focus:shadow">Skip to the inquiry form</a>
+
+<div class="bg-navy-900 px-4 py-1.5 text-center text-[11px] leading-relaxed text-gold-200">
+  <span class="font-semibold">Demonstration build</span>: prototype for local testing, not an official Ministry of Interior service.
+  <span class="ar-ui block sm:inline" dir="rtl" lang="ar">نسخة تجريبية للعرض والاختبار، وليست خدمة رسمية تابعة لوزارة الداخلية.</span>
+</div>
+
+<header class="bg-navy text-white">
+  <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 pt-4 sm:gap-4">
+    <svg viewBox="0 0 64 72" role="img" aria-label="State emblem placeholder" class="h-11 w-11 shrink-0 sm:h-12 sm:w-12">
+      <path d="M32 3 58 12v26c0 14-11 25-26 31C17 63 6 52 6 38V12Z" fill="#003366" stroke="#c8a951" stroke-width="2.5"/>
+      <path d="M32 9 52 16v22c0 11-8.6 19.9-20 24.7C20.6 57.9 12 49 12 38V16Z" fill="none" stroke="#c8a951" stroke-width="0.9" opacity=".6"/>
+      <path d="M33 19v22" stroke="#e8d7a0" stroke-width="1.4"/>
+      <path d="M34.5 22c6 5.4 7.8 11 7 17.5h-7Z" fill="#e8d7a0"/>
+      <path d="M31.5 29c-4.4 3.6-5.6 7.4-5.4 10.5h5.4Z" fill="#e8d7a0" opacity=".75"/>
+      <path d="M20 43h24.5l-4.2 7.6a3 3 0 0 1-2.6 1.5H27a3.2 3.2 0 0 1-2.7-1.6Z" fill="#c8a951"/>
+      <path d="M16 57q4-3.4 8 0t8 0 8 0" fill="none" stroke="#c8a951" stroke-width="1.7"/>
+      <path d="M18 63q4-3.4 8 0t8 0" fill="none" stroke="#c8a951" stroke-width="1.3" opacity=".7"/>
+    </svg>
+    <div class="min-w-0 flex-1">
+      <p class="ar-ui text-[15px] font-semibold leading-tight" dir="rtl" lang="ar">دولة الكويت · وزارة الداخلية</p>
+      <h1 class="mt-0.5 text-[17px] font-semibold leading-tight sm:text-lg">State of Kuwait · Ministry of Interior</h1>
+      <p class="text-[12px] text-mist">General Directorate of Residency Affairs</p>
+    </div>
+    <div class="min-w-0 text-right">
+      <p class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">الإدارة العامة لشؤون الإقامة</p>
+      <p class="mt-1 text-[11px] text-mist">e-Visa service · خدمة التأشيرة الإلكترونية</p>
+    </div>
+  </div>
+
+  <div class="mx-auto mt-4 max-w-5xl px-4"><div class="section-rule"><i></i></div></div>
+
+  <nav aria-label="Primary" class="mx-auto flex max-w-5xl items-stretch gap-1 overflow-x-auto px-2 sm:px-4">
+    <a href="#inquiry" data-nav="portal" class="nav-link" aria-current="page">
+      <span class="text-sm font-semibold">eVisa inquiry</span>
+      <span class="ar-ui text-[12px]" dir="rtl" lang="ar">الاستعلام</span>
+    </a>
+    <a href="#admin" data-nav="admin" class="nav-link">
+      <span class="text-sm font-semibold">Staff console</span>
+      <span class="ar-ui text-[12px]" dir="rtl" lang="ar">لوحة الموظفين</span>
+    </a>
+  </nav>
+</header>
+
+<main id="main" class="flex-1 pb-10">
+<section id="viewPortal" class="mx-auto max-w-5xl px-4">
+  <div id="inquiry" class="mt-6 scroll-mt-4 rounded-[6px] border border-sand-200 bg-white paper">
+    <div class="border-b border-sand-200 bg-sand-50 px-4 py-4 sm:px-6">
+      <h2 class="text-lg font-semibold leading-tight text-navy sm:text-xl">eVisa status inquiry</h2>
+      <p class="ar-ui mt-0.5 text-[15px] font-semibold leading-tight text-navy-800" dir="rtl" lang="ar">استعلام عن التأشيرة الإلكترونية</p>
+      <div class="section-rule mt-3"><i></i></div>
+      <p class="mt-3 max-w-2xl text-[13px] leading-relaxed text-slate-600 sm:text-sm">
+        Enter the six-character reference printed on your eVisa notification. A link that carries
+        <code class="mono-doc rounded-[3px] border border-sand-200 bg-white px-1 py-0.5 text-[12px] text-navy">?code=</code>
+        checks the reference automatically when the page opens.
+      </p>
+    </div>
+
+    <form id="inquiryForm" novalidate class="px-4 py-5 sm:px-6">
+      <label for="codeInput" class="block text-sm font-semibold text-ink">
+        Reference number
+        <span class="ar-ui mt-0.5 block text-[13px] font-medium text-slate-600" dir="rtl" lang="ar">رقم المرجع</span>
+      </label>
+      <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-stretch">
+        <input id="codeInput" name="code" type="text" inputmode="numeric" pattern="[A-Za-z0-9]{6}" maxlength="6"
+          autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" enterkeyhint="go"
+          aria-describedby="codeHelp codeError" placeholder="123456"
+          class="tabular mono-doc h-[52px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-4 text-center text-xl font-semibold tracking-[0.3em] text-navy placeholder:font-normal placeholder:text-slate-400 focus:border-navy focus:outline-none sm:max-w-[248px]">
+        <button type="submit" id="verifyBtn" class="inline-flex min-h-[52px] items-center justify-center gap-3 rounded-[4px] border border-navy-900 bg-navy px-6 text-white transition-colors hover:bg-navy-800 active:bg-navy-900">
+          <span class="text-[15px] font-semibold">Check reference</span>
+          <span class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">تحقق من الرقم</span>
+        </button>
+      </div>
+
+      <p id="codeHelp" class="mt-2 text-[12px] leading-relaxed text-slate-500">
+        Six digits. Legacy references may contain letters.
+      </p>
+      <p id="codeError" class="is-hidden mt-2 rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-2 text-[13px] font-medium text-alert"></p>
+
+      <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <button type="button" id="pasteBtn" class="min-h-[44px] text-[13px] font-semibold text-navy underline decoration-gold-500 decoration-2 underline-offset-4 hover:text-navy-800">Paste from clipboard</button>
+        <button type="button" id="clearBtn" class="min-h-[44px] text-[13px] font-semibold text-slate-600 underline decoration-slate-300 decoration-2 underline-offset-4 hover:text-ink">Clear</button>
+        <button type="button" id="sampleBtn" data-fill="123456" class="is-hidden min-h-[44px] rounded-[4px] border border-dashed border-gold-600 px-3 text-[13px] font-semibold text-gold-700 hover:bg-sand-50">Use sample reference 123456</button>
+      </div>
+
+      <p class="mt-4 border-t border-sand-200 pt-3 text-[11px] leading-relaxed text-slate-500">
+        Prototype data only. Do not enter real passport, visa, or personal data.
+        <span class="ar-ui block" dir="rtl" lang="ar">بيانات تجريبية فقط. يرجى عدم إدخال بيانات حقيقية.</span>
+      </p>
+    </form>
+  </div>
+
+  <div id="result" class="mt-5" aria-live="polite">
+    <div class="rounded-[6px] border border-dashed border-sand-300 bg-white px-4 py-7 text-center">
+      <p class="text-sm font-semibold text-ink">No reference checked yet</p>
+      <p class="ar-ui mt-1 text-[14px] font-medium text-slate-600" dir="rtl" lang="ar">لم يتم التحقق من أي رقم بعد</p>
+      <p class="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-slate-500">
+        The electronic visa appears here after a successful check, together with the download and print actions.
+      </p>
+    </div>
+  </div>
+</section>
+<section id="viewAdmin" class="is-hidden mx-auto max-w-5xl px-4">
+  <div id="adminGate" class="mx-auto mt-8 max-w-md rounded-[6px] border border-sand-200 bg-white paper">
+    <div class="border-b border-sand-200 bg-sand-50 px-4 py-4 text-center sm:px-6">
+      <h2 class="text-lg font-semibold text-navy">Staff console</h2>
+      <p class="ar-ui mt-0.5 text-[14px] font-semibold text-navy-800" dir="rtl" lang="ar">لوحة الموظفين</p>
+      <div class="section-rule mt-3"><i></i></div>
+    </div>
+    <form id="gateForm" novalidate class="px-4 py-5 sm:px-6">
+      <label for="passInput" class="block text-sm font-semibold text-ink">
+        Master passcode
+        <span class="ar-ui mt-0.5 block text-[13px] font-medium text-slate-600" dir="rtl" lang="ar">رمز الدخول</span>
+      </label>
+      <input id="passInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"
+        class="mt-2 h-[52px] w-full rounded-[4px] border-2 border-sand-300 px-3 text-navy focus:border-navy focus:outline-none">
+      <p id="gateError" class="is-hidden mt-2 rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-2 text-[13px] font-medium text-alert"></p>
+      <button type="submit" class="mt-3 inline-flex min-h-[48px] w-full items-center justify-center gap-3 rounded-[4px] border border-navy-900 bg-navy px-6 text-white hover:bg-navy-800">
+        <span class="text-[15px] font-semibold">Unlock console</span>
+        <span class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">دخول</span>
+      </button>
+      <p class="mt-3 text-[11px] leading-relaxed text-slate-500">
+        Client-side gate for a local demo. This is not authentication, and anyone who can read the page source can read the passcode.
+        <span class="ar-ui mt-0.5 block" dir="rtl" lang="ar">حماية تجريبية على مستوى المتصفح وليست مصادقة حقيقية.</span>
+      </p>
+    </form>
+  </div>
+
+  <div id="adminConsole" class="is-hidden mt-6">
+    <div class="flex flex-wrap items-center gap-3 rounded-[6px] border border-sand-200 bg-white px-4 py-3 paper">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-base font-semibold text-navy">Visa register</h2>
+        <p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">سجل التأشيرات التجريبي</p>
+      </div>
+      <span id="modeBadge" class="rounded-[4px] border border-slate-300 px-2.5 py-1 text-[12px] font-semibold text-slate-600">checking store</span>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" id="refreshBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-navy hover:bg-sand-50">Refresh</button>
+        <button type="button" id="lockBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-slate-600 hover:bg-sand-50">Lock console</button>
+      </div>
+    </div>
+
+    <p id="storeNote" class="mt-2 rounded-[4px] border border-sand-300 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700"></p>
+
+    <details class="mt-3 rounded-[6px] border border-sand-200 bg-white px-4 py-3">
+      <summary class="text-sm font-semibold text-navy">Supabase connection <span class="font-normal text-slate-500">(two steps, then every device sees the same rows)</span></summary>
+      <ol class="mt-3 space-y-2 text-[13px] leading-relaxed text-slate-700">
+        <li><span class="font-semibold">1.</span> Run <code class="mono-doc rounded-[3px] bg-sand-50 px-1">supabase-schema.sql</code> in the Supabase SQL Editor. It creates <code class="mono-doc rounded-[3px] bg-sand-50 px-1">kuwait_visas</code> with row level security and demo read plus write policies.</li>
+        <li><span class="font-semibold">2.</span> Paste the project URL and the anon public key into <code class="mono-doc rounded-[3px] bg-sand-50 px-1">SUPABASE_URL</code> and <code class="mono-doc rounded-[3px] bg-sand-50 px-1">SUPABASE_ANON_KEY</code> at the top of the script in <code class="mono-doc rounded-[3px] bg-sand-50 px-1">index.html</code>, then reload the page. Serve over http or https for cloud mode; a file:// page can only use the local store.</li>
+      </ol>
+      <p class="mt-3 text-[11px] leading-relaxed text-slate-500">The shipped policies allow anyone holding the anon key to read and write. That matches the demo brief. Before any real use, move writes behind Supabase Auth or an edge function.</p>
+    </details>
+
+    <div class="mt-4 rounded-[6px] border border-sand-200 bg-white paper">
+      <div class="flex flex-wrap items-center gap-3 border-b border-sand-200 bg-sand-50 px-4 py-3">
+        <div class="min-w-0 flex-1">
+          <h3 id="formTitle" class="text-sm font-semibold text-navy">Create a visa record</h3>
+          <p id="formSubtitle" class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">إضافة سجل تأشيرة</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="randomBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-gold-600 px-3 text-[13px] font-semibold text-gold-700 hover:bg-sand-50">Generate random reference</button>
+          <button type="button" id="resetFormBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-slate-600 hover:bg-white">New record</button>
+        </div>
+      </div>
+      <form id="visaForm" novalidate class="px-4 py-5 sm:px-6">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="fNameEn" class="block text-[13px] font-semibold text-ink">Full name, English <span class="font-normal text-slate-500">required</span></label>
+            <input id="fNameEn" type="text" autocomplete="off" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fNameAr" class="block text-[13px] font-semibold text-ink">Full name, Arabic <span class="ar-ui text-[12px] font-normal text-slate-500" dir="rtl">الاسم بالكامل</span></label>
+            <input id="fNameAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fPassport" class="block text-[13px] font-semibold text-ink">Passport number <span class="font-normal text-slate-500">required</span></label>
+            <input id="fPassport" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="P0000000" class="mono-doc mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fDob" class="block text-[13px] font-semibold text-ink">Date of birth</label>
+            <input id="fDob" type="date" class="tabular mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+
+          <div>
+            <label for="fNatPreset" class="block text-[13px] font-semibold text-ink">Nationality preset</label>
+            <select id="fNatPreset" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none"></select>
+          </div>
+          <div>
+            <label for="fGender" class="block text-[13px] font-semibold text-ink">Sex</label>
+            <select id="fGender" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+              <option value="Male">Male · ذكر</option>
+              <option value="Female">Female · أنثى</option>
+            </select>
+          </div>
+          <div>
+            <label for="fNatEn" class="block text-[13px] font-semibold text-ink">Nationality, English</label>
+            <input id="fNatEn" type="text" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fNatAr" class="block text-[13px] font-semibold text-ink">Nationality, Arabic</label>
+            <input id="fNatAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+
+          <div>
+            <label for="fProfPreset" class="block text-[13px] font-semibold text-ink">Profession preset</label>
+            <select id="fProfPreset" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none"></select>
+          </div>
+          <div>
+            <label for="fTypePreset" class="block text-[13px] font-semibold text-ink">Visa type preset</label>
+            <select id="fTypePreset" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none"></select>
+          </div>
+          <div>
+            <label for="fProfEn" class="block text-[13px] font-semibold text-ink">Profession, English</label>
+            <input id="fProfEn" type="text" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fProfAr" class="block text-[13px] font-semibold text-ink">Profession, Arabic</label>
+            <input id="fProfAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fTypeEn" class="block text-[13px] font-semibold text-ink">Visa type, English</label>
+            <input id="fTypeEn" type="text" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+          <div>
+            <label for="fTypeAr" class="block text-[13px] font-semibold text-ink">Visa type, Arabic</label>
+            <input id="fTypeAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 sm:col-span-2 sm:grid-cols-3">
+            <div>
+              <label for="fIssue" class="block text-[13px] font-semibold text-ink">Issue date</label>
+              <input id="fIssue" type="date" class="tabular mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fValidity" class="block text-[13px] font-semibold text-ink">Validity preset</label>
+              <select id="fValidity" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+                <option value="30">30 days</option>
+                <option value="60">60 days</option>
+                <option value="90" selected>90 days</option>
+                <option value="180">180 days</option>
+                <option value="365">365 days</option>
+              </select>
+            </div>
+            <div class="col-span-2 sm:col-span-1">
+              <label for="fExpiry" class="block text-[13px] font-semibold text-ink">Expiry date</label>
+              <input id="fExpiry" type="date" class="tabular mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="fPhoto" class="block text-[13px] font-semibold text-ink">Photo URL <span class="font-normal text-slate-500">optional, leave empty for the placeholder portrait</span></label>
+            <div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <input id="fPhoto" type="url" inputmode="url" placeholder="https://example.com/photo.jpg" class="h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+              <img id="photoPreview" alt="Photo preview placeholder" class="h-[64px] w-[52px] rounded-[3px] border border-sand-300 bg-sand-50 object-cover" src="">
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="fCode" class="block text-[13px] font-semibold text-ink">Reference number <span class="font-normal text-slate-500">six characters, digits recommended</span></label>
+            <div class="mt-1 flex flex-col gap-2 sm:flex-row">
+              <input id="fCode" type="text" maxlength="6" autocapitalize="characters" spellcheck="false" placeholder="123456" class="tabular mono-doc h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 tracking-[0.25em] text-navy focus:border-navy focus:outline-none sm:max-w-[220px]">
+              <button type="button" id="codeBtn" class="inline-flex min-h-[48px] items-center justify-center rounded-[4px] border border-gold-600 px-4 text-[13px] font-semibold text-gold-700 hover:bg-sand-50">Generate random six-digit code</button>
+            </div>
+          </div>
+        </div>
+
+        <p id="formError" class="is-hidden mt-4 rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-2 text-[13px] font-medium text-alert"></p>
+        <p id="draftNote" class="is-hidden mt-4 rounded-[4px] border border-gold-500 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700"></p>
+
+        <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-sand-200 pt-4">
+          <button type="submit" id="saveBtn" class="inline-flex min-h-[48px] items-center justify-center gap-3 rounded-[4px] border border-navy-900 bg-navy px-5 text-white hover:bg-navy-800">
+            <span class="text-[15px] font-semibold">Save record</span>
+            <span class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">حفظ السجل</span>
+          </button>
+          <button type="button" id="cancelEditBtn" class="is-hidden inline-flex min-h-[48px] items-center rounded-[4px] border border-sand-300 px-4 text-[13px] font-semibold text-slate-600 hover:bg-white">Cancel editing</button>
+          <p class="text-[12px] text-slate-500">Changes appear in the register and on every device as soon as the record is saved.</p>
+        </div>
+      </form>
+    </div>
+
+    <div class="mt-4 rounded-[6px] border border-sand-200 bg-white paper">
+      <div class="flex flex-wrap items-center gap-3 border-b border-sand-200 bg-sand-50 px-4 py-3">
+        <div class="min-w-0 flex-1">
+          <h3 class="text-sm font-semibold text-navy">Registered records</h3>
+          <p class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">السجلات المسجلة</p>
+        </div>
+        <label for="searchInput" class="sr-only">Search records</label>
+        <input id="searchInput" type="search" placeholder="Search name, passport, reference" class="h-[44px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none sm:w-[300px]">
+      </div>
+      <div id="listRegion" class="px-4 py-4"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="mt-auto border-t border-sand-200 bg-white">
+  <div class="mx-auto max-w-5xl px-4 py-5">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="min-w-0 max-w-md">
+        <p class="text-[13px] font-semibold text-navy">State of Kuwait · Ministry of Interior (demonstration)</p>
+        <p class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">دولة الكويت · وزارة الداخلية (نسخة تجريبية)</p>
+        <p class="mt-2 text-[11px] leading-relaxed text-slate-500">A prototype for layout review and flow testing. Emblems, seals, verification blocks and sample records are placeholders, and the build is not connected to any government system.</p>
+      </div>
+      <div class="flex flex-col text-[13px]">
+        <a href="#inquiry" class="inline-flex min-h-[44px] items-center font-semibold text-navy underline decoration-gold-500 decoration-2 underline-offset-4">eVisa inquiry · الاستعلام</a>
+        <a href="#admin" class="inline-flex min-h-[44px] items-center font-semibold text-navy underline decoration-gold-500 decoration-2 underline-offset-4">Staff console · لوحة الموظفين</a>
+        <p class="text-[11px] text-slate-500">Schema file: <span class="mono-doc">supabase-schema.sql</span></p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div id="toastRegion" role="status" aria-live="polite" class="pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+  <p id="toastMsg" class="is-hidden max-w-md rounded-[6px] border border-navy-900 bg-navy-900 px-4 py-3 text-[13px] font-medium leading-relaxed text-white shadow-lg"></p>
+</div>
+
+<div id="confirmModal" class="is-hidden fixed inset-0 z-[60] flex items-end justify-center bg-navy-900/60 p-4 sm:items-center">
+  <div role="dialog" aria-modal="true" aria-labelledby="confirmTitle" class="w-full max-w-sm rounded-[6px] border border-sand-300 bg-white paper">
+    <div class="border-b border-sand-200 bg-sand-50 px-4 py-3">
+      <h3 id="confirmTitle" class="text-base font-semibold text-navy">Delete record</h3>
+      <p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">حذف السجل</p>
+    </div>
+    <div class="px-4 py-4">
+      <p id="confirmBody" class="text-[13px] leading-relaxed text-slate-700"></p>
+    </div>
+    <div class="flex flex-wrap justify-end gap-2 border-t border-sand-200 px-4 py-3">
+      <button type="button" id="confirmCancel" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-4 text-[13px] font-semibold text-slate-600 hover:bg-sand-50">Cancel</button>
+      <button type="button" id="confirmOk" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-[#6f1c1c] bg-alert px-4 text-[13px] font-semibold text-white hover:bg-[#6f1c1c]">Delete record</button>
+    </div>
+  </div>
+</div>
+
+<div id="shareModal" class="is-hidden fixed inset-0 z-[60] flex items-end justify-center bg-navy-900/60 p-4 sm:items-center">
+  <div role="dialog" aria-modal="true" aria-labelledby="shareTitle" class="w-full max-w-md rounded-[6px] border border-sand-300 bg-white paper">
+    <div class="border-b border-sand-200 bg-sand-50 px-4 py-3">
+      <h3 id="shareTitle" class="text-base font-semibold text-navy">Share link</h3>
+      <p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">رابط المشاركة</p>
+    </div>
+    <div class="px-4 py-4">
+      <p class="text-[13px] leading-relaxed text-slate-700">Automatic copying was blocked in this browser. The link is selected below, so press and hold to copy it.</p>
+      <input id="shareInput" type="text" readonly class="mono-doc mt-3 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-sand-50 px-3 text-ink focus:border-navy focus:outline-none">
+    </div>
+    <div class="flex flex-wrap justify-end gap-2 border-t border-sand-200 px-4 py-3">
+      <button type="button" id="shareRetry" class="is-hidden inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-4 text-[13px] font-semibold text-navy hover:bg-sand-50">Try copying again</button>
+      <button type="button" id="shareClose" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-navy-900 bg-navy px-4 text-[13px] font-semibold text-white hover:bg-navy-800">Close</button>
+    </div>
+  </div>
+</div>
+
+<noscript>
+  <div class="fixed inset-0 z-[80] grid place-items-center bg-white/95 p-6 text-center">
+    <p class="max-w-sm text-[14px] leading-relaxed text-slate-700">This portal runs on JavaScript. Enable it to check a reference or open the staff console.</p>
+  </div>
+</noscript>
+<script>
+(function () {
+  'use strict';
+
+  /* Configuration: paste the Supabase project values here, then reload. */
+  const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR-SUPABASE-ANON-KEY';
+  const TABLE = 'kuwait_visas';
+  const ADMIN_PASSCODE = 'admin2026';
+  const ADMIN_SESSION_HOURS = 12;
+  const STORE_KEY = 'kw_visas_demo_v1';
+  const SEED_KEY = 'kw_visas_demo_seeded_v1';
+  const DRAFT_KEY = 'kw_visa_draft_v1';
+  const SESSION_KEY = 'kw_admin_session_v1';
+  const LOCAL_SAMPLE_CODE = '123456';
+
+  const CLOUD_READY = /^https:\/\/[a-z0-9-]+\.supabase\.(co|in|net)$/i.test(SUPABASE_URL.trim().replace(/\/+$/, ''))
+    && SUPABASE_ANON_KEY.length > 24 && !/^YOUR/i.test(SUPABASE_ANON_KEY);
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+  const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ESC_MAP[c]);
+  const show = (el, on) => { if (el) el.classList.toggle('is-hidden', !on); };
+  const isShown = (el) => !!el && !el.classList.contains('is-hidden');
+  const clean = (v, max) => String(v == null ? '' : v).trim().replace(/\s+/g, ' ').slice(0, max || 200);
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+  function addDays(iso, n) {
+    const d = new Date(String(iso).slice(0, 10) + 'T00:00:00');
+    if (isNaN(d.getTime())) return iso;
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  function fmtDate(iso) {
+    if (!iso) return '-';
+    const d = new Date(String(iso).slice(0, 10) + 'T00:00:00');
+    if (isNaN(d.getTime())) return '-';
+    return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear();
+  }
+  /* Hijri dates are a nicety; older webviews without the umalqura calendar simply show nothing. */
+  function fmtHijri(iso) {
+    if (!iso) return '';
+    try {
+      return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' })
+        .format(new Date(String(iso).slice(0, 10) + 'T00:00:00'));
+    } catch (e) { return ''; }
+  }
+  const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+  const randomCode = () => String(Math.floor(100000 + Math.random() * 900000));
+  const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const safeSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  const safeDel = (k) => { try { localStorage.removeItem(k); } catch (e) { } };
+  function uid() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) { }
+    return 'local-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+  }
+
+  const NATIONALITIES = [
+    { en: 'Ethiopian', ar: 'إثيوبي' }, { en: 'Indian', ar: 'هندي' }, { en: 'Filipino', ar: 'فلبيني' },
+    { en: 'Bangladeshi', ar: 'بنغلاديشي' }, { en: 'Pakistani', ar: 'باكستاني' }, { en: 'Nepali', ar: 'نيبالي' },
+    { en: 'Sri Lankan', ar: 'سريلانكي' }, { en: 'Egyptian', ar: 'مصري' }, { en: 'Kenyan', ar: 'كيني' },
+    { en: 'Ugandan', ar: 'أوغندي' }, { en: 'Indonesian', ar: 'إندونيسي' }, { en: 'Ghanaian', ar: 'غاني' },
+    { en: 'Nigerian', ar: 'نيجيري' }, { en: 'Sudanese', ar: 'سوداني' }, { en: 'Yemeni', ar: 'يمني' },
+    { en: 'Jordanian', ar: 'أردني' }, { en: 'Syrian', ar: 'سوري' }, { en: 'Lebanese', ar: 'لبناني' }
+  ];
+  const PROFESSIONS = [
+    { en: 'Driver', ar: 'سائق', arf: 'سائقة' },
+    { en: 'Domestic worker', ar: 'عامل منزلي', arf: 'عاملة منزلية' },
+    { en: 'Cleaner', ar: 'عامل نظافة', arf: 'عاملة نظافة' },
+    { en: 'Construction worker', ar: 'عامل بناء', arf: 'عاملة بناء' },
+    { en: 'Farm worker', ar: 'عامل زراعي', arf: 'عاملة زراعية' },
+    { en: 'Cook', ar: 'طباخ', arf: 'طباخة' },
+    { en: 'Waiter', ar: 'نادل', arf: 'نادلة' },
+    { en: 'Sales assistant', ar: 'بائع', arf: 'بائعة' },
+    { en: 'Nurse', ar: 'ممرض', arf: 'ممرضة' },
+    { en: 'Engineer', ar: 'مهندس', arf: 'مهندسة' },
+    { en: 'Teacher', ar: 'مدرس', arf: 'مدرسة' },
+    { en: 'Security guard', ar: 'حارس أمن', arf: 'حارسة أمن' },
+    { en: 'Electrician', ar: 'كهربائي', arf: 'كهربائية' },
+    { en: 'Plumber', ar: 'سباك', arf: 'سباكة' },
+    { en: 'Mechanic', ar: 'ميكانيكي', arf: 'ميكانيكية' },
+    { en: 'Tailor', ar: 'خياط', arf: 'خياطة' },
+    { en: 'Barber', ar: 'حلاق', arf: 'حلاقة' },
+    { en: 'Housekeeper', ar: 'مدبرة منزلية', arf: 'مدبرة منزلية' }
+  ];
+  const VISA_TYPES = [
+    { en: 'Work visa, Article 18', ar: 'تأشيرة عمل، مادة 18' },
+    { en: 'Family visa, Article 22', ar: 'تأشيرة عائلية، مادة 22' },
+    { en: 'Visit visa, Article 14', ar: 'تأشيرة زيارة، مادة 14' },
+    { en: 'Tourist e-Visa', ar: 'تأشيرة سياحية إلكترونية' },
+    { en: 'Transit visa', ar: 'تأشيرة ترانزيت' }
+  ];
+
+  function placeholderPhoto() {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="372" viewBox="0 0 300 372">'
+      + '<rect width="300" height="372" fill="#eef2f7"/>'
+      + '<circle cx="150" cy="138" r="56" fill="#c6d1dd"/>'
+      + '<path d="M38 372c0-62 50-102 112-102s112 40 112 102z" fill="#c6d1dd"/>'
+      + '<rect y="340" width="300" height="32" fill="#003366"/>'
+      + '<text x="150" y="361" font-family="monospace" font-size="14" fill="#e2cd97" text-anchor="middle">PLACEHOLDER PHOTO</text>'
+      + '</svg>';
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  /* Both stores return the same record shape, so nothing above them cares which one is active. */
+  const LocalStore = {
+    rows: function () { try { return JSON.parse(safeGet(STORE_KEY)) || []; } catch (e) { return []; } },
+    write: function (rows) {
+      if (!safeSet(STORE_KEY, JSON.stringify(rows))) throw new Error('This browser blocked local storage, so the record was not saved.');
+      return rows;
+    },
+    list: async function () { return this.rows().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))); },
+    find: async function (code) { return this.rows().find((r) => r.code === code) || null; },
+    create: async function (rec) {
+      const rows = this.rows();
+      const row = Object.assign({}, rec, { id: uid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+      rows.push(row);
+      this.write(rows);
+      return row;
+    },
+    update: async function (id, patch) {
+      const rows = this.rows();
+      const i = rows.findIndex((r) => r.id === id);
+      if (i < 0) throw new Error('That record no longer exists. Refresh the register.');
+      rows[i] = Object.assign({}, rows[i], patch, { updated_at: new Date().toISOString() });
+      this.write(rows);
+      return rows[i];
+    },
+    remove: async function (id) { this.write(this.rows().filter((r) => r.id !== id)); }
+  };
+
+  let db = null;
+  const CloudStore = {
+    list: async function () {
+      const res = await db.from(TABLE).select('*').order('created_at', { ascending: false });
+      if (res.error) throw new Error(res.error.message);
+      return res.data || [];
+    },
+    find: async function (code) {
+      const res = await db.from(TABLE).select('*').eq('code', code).limit(1);
+      if (res.error) throw new Error(res.error.message);
+      return (res.data && res.data[0]) || null;
+    },
+    create: async function (rec) {
+      const res = await db.from(TABLE).insert(rec).select().single();
+      if (res.error) throw new Error(res.error.message);
+      return res.data;
+    },
+    update: async function (id, patch) {
+      const res = await db.from(TABLE).update(patch).eq('id', id).select().single();
+      if (res.error) throw new Error(res.error.message);
+      return res.data;
+    },
+    remove: async function (id) {
+      const res = await db.from(TABLE).delete().eq('id', id);
+      if (res.error) throw new Error(res.error.message);
+    }
+  };
+
+  async function loadSupabase() {
+    const sources = [
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
+      'https://esm.sh/@supabase/supabase-js@2.45.4'
+    ];
+    let last;
+    for (const src of sources) {
+      try {
+        const mod = await import(src);
+        if (mod && mod.createClient) return mod;
+      } catch (e) { last = e; }
+    }
+    throw last || new Error('The Supabase client script could not be loaded.');
+  }
+
+  const state = {
+    mode: 'local',
+    store: LocalStore,
+    records: [],
+    record: null,
+    editingId: null,
+    cloudError: ''
+  };
+
+  async function initStore() {
+    if (!CLOUD_READY) return;
+    try {
+      const mod = await loadSupabase();
+      db = mod.createClient(SUPABASE_URL.trim().replace(/\/+$/, ''), SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+      await CloudStore.list();
+      state.mode = 'cloud';
+      state.store = CloudStore;
+    } catch (e) {
+      state.mode = 'local';
+      state.store = LocalStore;
+      state.cloudError = (e && e.message) ? e.message : String(e);
+    }
+  }
+
+  function sampleRecord() {
+    const issue = addDays(todayISO(), -6);
+    return {
+      id: uid(),
+      code: LOCAL_SAMPLE_CODE,
+      full_name_en: 'SAMPLE APPLICANT NAME',
+      full_name_ar: 'الاسم التجريبي لمقدم الطلب',
+      passport_no: 'P0000000',
+      nationality_en: 'Ethiopian',
+      nationality_ar: 'إثيوبي',
+      gender: 'Male',
+      date_of_birth: '1992-04-17',
+      profession_en: 'Driver',
+      profession_ar: 'سائق',
+      visa_type_en: 'Work visa, Article 18',
+      visa_type_ar: 'تأشيرة عمل، مادة 18',
+      issue_date: issue,
+      expiry_date: addDays(issue, 90),
+      photo_url: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  /* One seeded row (clearly labelled placeholder values) so a fresh clone has something to verify. */
+  function seedLocalOnce() {
+    if (safeGet(SEED_KEY)) return;
+    const rows = LocalStore.rows();
+    if (!rows.length) {
+      rows.push(sampleRecord());
+      safeSet(STORE_KEY, JSON.stringify(rows));
+    }
+    safeSet(SEED_KEY, '1');
+  }
+
+  const serialOf = (v) => 'KW-' + (String(v.issue_date || '').slice(0, 4) || String(new Date().getFullYear())) + '-' + (v.code || '');
+  const statusOf = (v) => (!v.expiry_date ? 'valid' : (v.expiry_date < todayISO() ? 'expired' : 'valid'));
+
+  function mrzCheck(s) {
+    const weights = [7, 3, 1];
+    let sum = 0;
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charAt(i);
+      const val = c === '<' ? 0 : (/[0-9]/.test(c) ? Number(c) : c.charCodeAt(0) - 55);
+      sum += val * weights[i % 3];
+    }
+    return String(sum % 10);
+  }
+
+  function mrzLines(v) {
+    const parts = String(v.full_name_en || '').toUpperCase().replace(/[^A-Z ]/g, '').split(' ').filter(Boolean);
+    const surname = parts[0] || 'APPLICANT';
+    const given = parts.slice(1).join('<') || 'SAMPLE';
+    const doc = String(v.passport_no || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 9);
+    const dob = String(v.date_of_birth || '').replace(/-/g, '').slice(2);
+    const exp = String(v.expiry_date || '').replace(/-/g, '').slice(2);
+    const sex = v.gender === 'Female' ? 'F' : 'M';
+    const line1 = ('V<KWT' + surname + '<<' + given).replace(/ /g, '<').padEnd(44, '<').slice(0, 44);
+    const line2 = (doc.padEnd(9, '<') + mrzCheck(doc) + 'KWT' + (dob || '<<<<<<') + mrzCheck(dob) + sex + (exp || '<<<<<<') + mrzCheck(exp) + '<<<<<<<<<<<<'.slice(0).padEnd(12, '<')).slice(0, 44).padEnd(44, '<');
+    return [line1, line2];
+  }
+
+  /* Deterministic pseudo-QR: finder and timing patterns plus a hash-seeded field, drawn for the document aesthetic. */
+  function hash32(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function drawQr(canvas, seed) {
+    const N = 25, quiet = 3, modules = N + quiet * 2, size = 88;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(size * dpr);
+    canvas.height = Math.round(size * dpr);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    const cell = size / modules;
+    const grid = [];
+    for (let y = 0; y < N; y++) grid.push(new Array(N).fill(null));
+
+    function finder(x, y) {
+      for (let j = 0; j < 7; j++) for (let i = 0; i < 7; i++) {
+        const edge = (i === 0 || i === 6 || j === 0 || j === 6);
+        const core = (i >= 2 && i <= 4 && j >= 2 && j <= 4);
+        grid[y + j][x + i] = (edge || core) ? 1 : 0;
+      }
+      for (let k = -1; k < 8; k++) {
+        if (x + k >= 0 && x + k < N) { if (y - 1 >= 0) grid[y - 1][x + k] = 0; if (y + 7 < N) grid[y + 7][x + k] = 0; }
+        if (y + k >= 0 && y + k < N) { if (x - 1 >= 0) grid[y + k][x - 1] = 0; if (x + 7 < N) grid[y + k][x + 7] = 0; }
+      }
+    }
+    finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
+
+    for (let i = 8; i < N - 8; i++) { grid[6][i] = i % 2 ? 0 : 1; grid[i][6] = i % 2 ? 0 : 1; }
+    for (let j = 0; j < 5; j++) for (let i = 0; i < 5; i++) {
+      const edge = (i === 0 || i === 4 || j === 0 || j === 4);
+      grid[N - 9 + j][N - 9 + i] = (edge || (i === 2 && j === 2)) ? 1 : 0;
+    }
+
+    const rnd = mulberry32(hash32(String(seed)));
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (grid[y][x] === null) grid[y][x] = rnd() < 0.47 ? 1 : 0;
+
+    ctx.fillStyle = '#003366';
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      if (grid[y][x]) ctx.fillRect((x + quiet) * cell, (y + quiet) * cell, Math.ceil(cell), Math.ceil(cell));
+    }
+  }
+
+  function drawBarcode(canvas, seed) {
+    const w = 620, h = 84, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#16233a';
+    let x = 20;
+    const guard = () => { ctx.fillRect(x, 4, 3, 76); x += 7; ctx.fillRect(x, 4, 3, 76); x += 11; };
+    guard();
+    const rnd = mulberry32(hash32(seed + '|barcode'));
+    while (x < w - 46) {
+      const bar = 1 + Math.floor(rnd() * 3);
+      const gap = 1 + Math.floor(rnd() * 3);
+      ctx.fillRect(x, 8, bar, 68);
+      x += bar + gap;
+    }
+    ctx.fillRect(x, 4, 3, 76); x += 7; ctx.fillRect(x, 4, 3, 76);
+  }
+
+  function docFields(v) {
+    return [
+      { en: 'Full name', ar: 'الاسم بالكامل', val: v.full_name_en, valAr: v.full_name_ar, wide: true },
+      { en: 'Passport number', ar: 'رقم الجواز', val: v.passport_no, mono: true },
+      { en: 'Nationality', ar: 'الجنسية', val: v.nationality_en, valAr: v.nationality_ar },
+      { en: 'Sex', ar: 'الجنس', val: v.gender === 'Female' ? 'Female' : 'Male', valAr: v.gender === 'Female' ? 'أنثى' : 'ذكر' },
+      { en: 'Date of birth', ar: 'تاريخ الميلاد', val: fmtDate(v.date_of_birth), valAr: fmtHijri(v.date_of_birth) },
+      { en: 'Profession', ar: 'المهنة', val: v.profession_en, valAr: v.profession_ar },
+      { en: 'Visa type', ar: 'نوع التأشيرة', val: v.visa_type_en, valAr: v.visa_type_ar, wide: true },
+      { en: 'Issue date', ar: 'تاريخ الإصدار', val: fmtDate(v.issue_date) },
+      { en: 'Expiry date', ar: 'تاريخ الانتهاء', val: fmtDate(v.expiry_date) },
+      { en: 'Reference number', ar: 'رقم التأشيرة', val: v.code, mono: true }
+    ];
+  }
+
+  function fieldHtml(f) {
+    return '<div class="min-w-0' + (f.wide ? ' sm:col-span-2' : '') + '">'
+      + '<div class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-[2px]">'
+      + '<span class="text-[10px] font-semibold text-slate-600">' + esc(f.en) + '</span>'
+      + '<span class="ar-ui text-[11px] text-slate-600" dir="rtl" lang="ar">' + esc(f.ar) + '</span>'
+      + '</div>'
+      + '<p class="tabular mt-[3px] text-[13px] font-semibold leading-snug text-ink' + (f.mono ? ' mono-doc' : '') + '">' + esc(f.val || '-') + '</p>'
+      + (f.valAr ? '<p class="ar-doc text-[15px] leading-snug text-ink" dir="rtl" lang="ar">' + esc(f.valAr) + '</p>' : '')
+      + '</div>';
+  }
+
+  const EMBLEM_DOC = '<svg viewBox="0 0 64 72" role="img" aria-label="State emblem placeholder" class="h-[52px] w-[52px] shrink-0">'
+    + '<path d="M32 3 58 12v26c0 14-11 25-26 31C17 63 6 52 6 38V12Z" fill="#003366" stroke="#c8a951" stroke-width="2.5"/>'
+    + '<path d="M32 9 52 16v22c0 11-8.6 19.9-20 24.7C20.6 57.9 12 49 12 38V16Z" fill="none" stroke="#c8a951" stroke-width="0.9" opacity=".6"/>'
+    + '<path d="M33 19v22" stroke="#e8d7a0" stroke-width="1.4"/>'
+    + '<path d="M34.5 22c6 5.4 7.8 11 7 17.5h-7Z" fill="#e8d7a0"/>'
+    + '<path d="M31.5 29c-4.4 3.6-5.6 7.4-5.4 10.5h5.4Z" fill="#e8d7a0" opacity=".75"/>'
+    + '<path d="M20 43h24.5l-4.2 7.6a3 3 0 0 1-2.6 1.5H27a3.2 3.2 0 0 1-2.7-1.6Z" fill="#c8a951"/>'
+    + '<path d="M16 57q4-3.4 8 0t8 0 8 0" fill="none" stroke="#c8a951" stroke-width="1.7"/>'
+    + '<path d="M18 63q4-3.4 8 0t8 0" fill="none" stroke="#c8a951" stroke-width="1.3" opacity=".7"/>'
+    + '</svg>';
+
+  function visaDocHTML(v) {
+    const st = statusOf(v);
+    const expired = st === 'expired';
+    const photo = v.photo_url ? v.photo_url : placeholderPhoto();
+    const mrz = mrzLines(v);
+    const remaining = v.expiry_date ? daysBetween(todayISO(), v.expiry_date) : 0;
+    const stripBg = expired ? '#8a2424' : '#0d5132';
+    const statusLine = expired
+      ? ('expired on ' + fmtDate(v.expiry_date) + (remaining < 0 ? ' · ' + Math.abs(remaining) + ' days ago' : ''))
+      : ('expires ' + fmtDate(v.expiry_date) + (remaining >= 0 ? ' · ' + remaining + ' days remaining' : ''));
+
+    return '<article id="visaDoc" role="document" aria-label="Electronic visa demonstration document"'
+      + ' class="relative overflow-hidden rounded-[6px] border border-sand-300 bg-white paper">'
+      + '<div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">'
+      + '<div class="watermark absolute inset-0 grid place-items-center">'
+      + '<p class="-rotate-[22deg] whitespace-nowrap text-[38px] font-bold sm:text-[52px]">نموذج تجريبي · DEMO · نموذج تجريبي</p>'
+      + '</div></div>'
+      + '<div class="relative">'
+
+      + '<div class="bg-navy px-4 py-3 text-white sm:px-5">'
+      + '<div class="flex items-start gap-3">'
+      + EMBLEM_DOC
+      + '<div class="min-w-0 flex-1">'
+      + '<p class="text-[11px] font-semibold text-gold-300">State of Kuwait · Ministry of Interior</p>'
+      + '<p class="ar-doc text-[18px] font-bold leading-tight" dir="rtl" lang="ar">وزارة الداخلية · الإدارة العامة لشؤون الإقامة</p>'
+      + '<p class="text-[10px] text-mist">General Directorate of Residency Affairs · Electronic Visa</p>'
+      + '</div>'
+      + '<div class="hidden shrink-0 text-right sm:block">'
+      + '<p class="text-[9px] text-mist">Serial</p>'
+      + '<p class="tabular mono-doc text-[11px] font-semibold text-gold-300">' + esc(serialOf(v)) + '</p>'
+      + '</div>'
+      + '</div>'
+      + '<div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-gold-500 pt-2">'
+      + '<p class="text-[14px] font-semibold">Electronic Visa</p>'
+      + '<p class="ar-doc text-[16px] font-bold text-gold-200" dir="rtl" lang="ar">تأشيرة إلكترونية</p>'
+      + '<p class="tabular mono-doc text-[11px] text-mist sm:hidden">' + esc(serialOf(v)) + '</p>'
+      + '</div>'
+      + '</div>'
+
+      + '<div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-white sm:px-5" style="background:' + stripBg + '">'
+      + '<p class="text-[12px] font-semibold">Status: ' + (expired ? 'Expired' : 'Valid') + ' · ' + esc(statusLine) + '</p>'
+      + '<p class="ar-doc text-[14px] font-bold" dir="rtl" lang="ar">' + (expired ? 'حالة التأشيرة: منتهية الصلاحية' : 'حالة التأشيرة: سارية') + '</p>'
+      + '</div>'
+
+      + '<div class="grid gap-4 p-4 sm:grid-cols-[140px_1fr] sm:gap-5 sm:p-5">'
+      + '<figure class="mx-auto w-[132px] shrink-0">'
+      + '<div class="relative">'
+      + '<img id="docPhoto" src="' + esc(photo) + '" alt="Applicant photograph placeholder" crossorigin="anonymous"'
+      + ' class="h-[168px] w-[132px] rounded-[3px] border-2 border-gold-500 bg-sand-50 object-cover">'
+      + '<div class="pointer-events-none absolute -bottom-5 -right-4 -rotate-12 opacity-80">'
+      + '<div class="relative grid h-[100px] w-[100px] place-items-center rounded-full border-[3px] border-green text-green">'
+      + '<div class="absolute inset-[6px] rounded-full border border-dashed border-green"></div>'
+      + '<div class="relative text-center leading-tight">'
+      + '<p class="text-[6px] font-bold tracking-[0.08em]">STATE OF KUWAIT</p>'
+      + '<p class="text-[8px] font-bold">MOI · e-VISA</p>'
+      + '<p class="text-[7px] font-bold tracking-[0.12em]">APPROVED</p>'
+      + '<p class="ar-doc text-[10px] font-bold" dir="rtl" lang="ar">معتمد</p>'
+      + '<p class="text-[5px] font-bold">PLACEHOLDER SEAL</p>'
+      + '</div></div></div></div>'
+      + '<figcaption class="mt-1 text-center text-[9px] text-slate-600">Photograph · الصورة</figcaption>'
+      + '<figcaption class="text-center text-[8px] text-slate-500">Placeholder, not a real person</figcaption>'
+      + '</figure>'
+      + '<div class="min-w-0"><div class="grid gap-x-5 gap-y-3 sm:grid-cols-2">'
+      + docFields(v).map(fieldHtml).join('')
+      + '</div></div>'
+      + '</div>'
+
+      + '<div class="border-t border-dashed border-sand-300 bg-sand-50 px-4 py-3 sm:px-5">'
+      + '<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">'
+      + '<div class="flex items-center gap-3">'
+      + '<canvas id="qrCanvas" class="h-[88px] w-[88px] shrink-0 rounded-[3px] border border-sand-300 bg-white"></canvas>'
+      + '<div class="min-w-0">'
+      + '<p class="text-[10px] font-semibold text-slate-600">Scan reference</p>'
+      + '<p class="ar-doc text-[13px] font-semibold text-ink" dir="rtl" lang="ar">رمز التحقق</p>'
+      + '<p class="mt-0.5 max-w-[24ch] text-[9px] leading-relaxed text-slate-500">Illustrative block, not a scannable credential.</p>'
+      + '</div></div>'
+      + '<div class="min-w-0 flex-1">'
+      + '<canvas id="barCanvas" class="h-[46px] w-full rounded-[3px]"></canvas>'
+      + '<p class="tabular mono-doc mt-1 text-center text-[10px] tracking-[0.18em] text-slate-700">' + esc(serialOf(v)) + '</p>'
+      + '</div></div>'
+      + '<div class="mt-3 overflow-hidden rounded-[3px] border border-sand-300 bg-white px-2 py-1.5">'
+      + '<p class="mono-doc whitespace-pre text-[9px] leading-[1.7] text-slate-700">' + esc(mrz[0]) + '</p>'
+      + '<p class="mono-doc whitespace-pre text-[9px] leading-[1.7] text-slate-700">' + esc(mrz[1]) + '</p>'
+      + '</div>'
+      + '</div>'
+
+      + '<div class="flex flex-wrap items-end justify-between gap-3 border-t border-sand-300 px-4 py-3 sm:px-5">'
+      + '<p class="max-w-[46ch] text-[9px] leading-relaxed text-slate-500">Demonstration document. Names, seals, barcode, QR block and MRZ are illustrative placeholders, not scannable or verifiable credentials. The download and print actions exist for layout review only.</p>'
+      + '<div class="text-center">'
+      + '<p class="text-[10px] font-semibold text-slate-700">Authorised signatory</p>'
+      + '<p class="ar-doc text-[12px] text-ink" dir="rtl" lang="ar">المفوّض بالتوقيع</p>'
+      + '<div class="mt-1 h-[26px] w-[132px] border-b border-slate-400"></div>'
+      + '<p class="text-[8px] text-slate-500">e-signature placeholder</p>'
+      + '</div></div>'
+
+      + '</div></article>';
+  }
+
+  function docActionsHTML() {
+    const primary = 'inline-flex min-h-[48px] items-center justify-center gap-3 rounded-[4px] px-4';
+    return '<div class="mt-3 flex flex-wrap gap-2">'
+      + '<button type="button" id="downloadBtn" class="' + primary + ' border border-navy-900 bg-navy text-white hover:bg-navy-800">'
+      + '<span class="text-[14px] font-semibold">Download image</span>'
+      + '<span class="ar-ui text-[12px] font-semibold text-gold-200" dir="rtl" lang="ar">تنزيل صورة</span></button>'
+      + '<button type="button" id="printBtn" class="' + primary + ' border border-sand-300 bg-white text-navy hover:bg-sand-50">'
+      + '<span class="text-[14px] font-semibold">Print or save as PDF</span>'
+      + '<span class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">طباعة</span></button>'
+      + '<button type="button" id="copyLinkBtn" class="inline-flex min-h-[48px] items-center justify-center rounded-[4px] border border-sand-300 bg-white px-4 text-[14px] font-semibold text-navy hover:bg-sand-50">Copy share link</button>'
+      + '<button type="button" id="newBtn" class="inline-flex min-h-[48px] items-center justify-center rounded-[4px] border border-sand-300 bg-white px-4 text-[14px] font-semibold text-slate-600 hover:bg-sand-50">New inquiry</button>'
+      + '</div>';
+  }
+
+  function renderFound(v) {
+    return '<div id="printArea">' + visaDocHTML(v) + '</div>' + docActionsHTML();
+  }
+
+  function renderLoading(code) {
+    return '<div class="rounded-[6px] border border-sand-200 bg-white px-4 py-5 paper">'
+      + '<p class="text-[13px] font-semibold text-ink">Checking the visa register for <span class="mono-doc">' + esc(code) + '</span></p>'
+      + '<p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">جارٍ التحقق من سجل التأشيرات</p>'
+      + '<div class="mt-4 space-y-2">'
+      + '<div class="skeleton h-3 w-2/3 rounded-[3px]"></div>'
+      + '<div class="skeleton h-3 w-1/2 rounded-[3px]"></div>'
+      + '<div class="skeleton h-[104px] w-full rounded-[4px]"></div>'
+      + '</div></div>';
+  }
+
+  function renderNotFound(code) {
+    return '<div class="rounded-[6px] border border-alert bg-white px-4 py-5 paper">'
+      + '<p class="text-[14px] font-semibold text-alert">No record for reference ' + esc(code) + '</p>'
+      + '<p class="ar-ui text-[13px] text-slate-700" dir="rtl" lang="ar">لا يوجد سجل مطابق لرقم المرجع</p>'
+      + '<p class="mt-2 max-w-xl text-[13px] leading-relaxed text-slate-600">Check the reference exactly as it appears on the eVisa notification and try again. If it still fails, ask the issuing office to confirm the number.</p>'
+      + '<button type="button" id="retryBtn" class="mt-3 inline-flex min-h-[44px] items-center rounded-[4px] border border-navy-900 bg-navy px-4 text-[13px] font-semibold text-white hover:bg-navy-800">Try the reference again</button>'
+      + '</div>';
+  }
+
+  function renderLookupError(msg) {
+    return '<div class="rounded-[6px] border border-alert bg-white px-4 py-5 paper">'
+      + '<p class="text-[14px] font-semibold text-alert">The register could not be reached</p>'
+      + '<p class="ar-ui text-[13px] text-slate-700" dir="rtl" lang="ar">تعذّر الوصول إلى السجل</p>'
+      + '<p class="mt-2 max-w-xl text-[13px] leading-relaxed text-slate-600">' + esc(msg) + '</p>'
+      + '<button type="button" id="retryBtn" class="mt-3 inline-flex min-h-[44px] items-center rounded-[4px] border border-navy-900 bg-navy px-4 text-[13px] font-semibold text-white hover:bg-navy-800">Retry the check</button>'
+      + '</div>';
+  }
+
+  function setResult(html) { $('#result').innerHTML = html; }
+
+  function afterDocRender(v) {
+    const qr = document.getElementById('qrCanvas');
+    if (qr) drawQr(qr, serialOf(v) + '|' + (v.passport_no || ''));
+    const bar = document.getElementById('barCanvas');
+    if (bar) drawBarcode(bar, serialOf(v) + '|' + (v.passport_no || ''));
+    const img = document.getElementById('docPhoto');
+    if (img) img.addEventListener('error', function () { img.src = placeholderPhoto(); });
+    bindDocActions(v);
+  }
+
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $('#toastMsg');
+    if (!el) return;
+    el.textContent = msg;
+    show(el, true);
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { show(el, false); }, 4600);
+  }
+
+  /* Focus-managed dialogs instead of window.confirm, which some in-app webviews suppress silently. */
+  let confirmResolve = null, lastFocus = null, modalResolveFocus = null;
+  function rememberFocus() { lastFocus = document.activeElement; }
+  function restoreFocus() {
+    if (modalResolveFocus) { modalResolveFocus = null; }
+    try { if (lastFocus && lastFocus.focus) lastFocus.focus(); } catch (e) { }
+  }
+  function openConfirm(opts) {
+    rememberFocus();
+    $('#confirmTitle').textContent = opts.title;
+    $('#confirmBody').textContent = opts.body;
+    $('#confirmOk').textContent = opts.okLabel || 'Confirm';
+    show($('#confirmModal'), true);
+    $('#confirmCancel').focus();
+    return new Promise(function (resolve) { confirmResolve = resolve; });
+  }
+  function closeConfirm(result) {
+    const m = $('#confirmModal');
+    if (!isShown(m)) return;
+    show(m, false);
+    if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(result); }
+    restoreFocus();
+  }
+  function openShare(link, allowRetry) {
+    rememberFocus();
+    const input = $('#shareInput');
+    input.value = link;
+    show($('#shareRetry'), allowRetry);
+    show($('#shareModal'), true);
+    input.focus();
+    try { input.setSelectionRange(0, link.length); } catch (e) { }
+  }
+  function closeShare() {
+    const m = $('#shareModal');
+    if (!isShown(m)) return;
+    show(m, false);
+    restoreFocus();
+  }
+
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+    } catch (e) { }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', 'readonly');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  async function shareLink(link) {
+    const ok = await copyText(link);
+    if (ok) { toast('Link copied. Opening it checks the reference automatically, including inside Telegram.'); return; }
+    openShare(link, true);
+  }
+
+  const baseLink = () => window.location.href.split('#')[0].split('?')[0];
+  const shareLinkFor = (code) => baseLink() + '?code=' + encodeURIComponent(code);
+
+  function syncUrl(code) {
+    try {
+      const query = code ? '?code=' + encodeURIComponent(code) : '';
+      const hash = window.location.hash === '#admin' ? '#admin' : '';
+      history.replaceState(null, '', window.location.pathname + query + hash);
+    } catch (e) { }
+  }
+
+  const normalizeCode = (raw) => String(raw == null ? '' : raw).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+
+  function setFieldError(msg) {
+    const el = $('#codeError');
+    if (!el) return;
+    if (!msg) { show(el, false); el.textContent = ''; return; }
+    el.textContent = msg;
+    show(el, true);
+  }
+
+  function bindRetry(code) {
+    const b = $('#retryBtn');
+    if (b) b.addEventListener('click', function () { verify(code); });
+  }
+
+  async function verify(code) {
+    const input = $('#codeInput');
+    const btn = $('#verifyBtn');
+    if (input) input.value = code;
+    setFieldError('');
+    if (btn) btn.disabled = true;
+    setResult(renderLoading(code));
+    try {
+      const rec = await state.store.find(code);
+      if (!rec) { setResult(renderNotFound(code)); bindRetry(code); return; }
+      state.record = rec;
+      setResult(renderFound(rec));
+      afterDocRender(rec);
+      syncUrl(code);
+    } catch (e) {
+      setResult(renderLookupError((e && e.message) ? e.message : 'Unknown error.'));
+      bindRetry(code);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  async function captureDoc() {
+    const node = document.getElementById('visaDoc');
+    if (!node) throw new Error('No document is on screen.');
+    if (!node.offsetWidth || !node.offsetHeight) throw new Error('The document is not visible on this screen.');
+    if (typeof window.html2canvas !== 'function') throw new Error('The image renderer did not load.');
+    return window.html2canvas(node, {
+      scale: Math.min(2, Math.max(1.5, window.devicePixelRatio || 1)),
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      windowWidth: node.scrollWidth,
+      windowHeight: node.scrollHeight
+    });
+  }
+
+  async function downloadDoc(v) {
+    const btn = $('#downloadBtn');
+    if (btn) btn.disabled = true;
+    toast('Rendering the document image on this device.');
+    try {
+      const canvas = await captureDoc();
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = 'kuwait-evisa-' + (v.code || 'demo') + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast('Image saved. If nothing was downloaded, use the print action and choose Save as PDF.');
+    } catch (e) {
+      toast('Image export is unavailable here, so the print view opens instead. Choose Save as PDF.');
+      setTimeout(function () { try { window.print(); } catch (err) { } }, 500);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function bindDocActions(v) {
+    const dl = $('#downloadBtn');
+    if (dl) dl.addEventListener('click', function () { downloadDoc(v); });
+    const pr = $('#printBtn');
+    if (pr) pr.addEventListener('click', function () { window.print(); });
+    const cl = $('#copyLinkBtn');
+    if (cl) cl.addEventListener('click', function () { shareLink(shareLinkFor(v.code)); });
+    const nb = $('#newBtn');
+    if (nb) nb.addEventListener('click', resetInquiry);
+  }
+
+  function resetInquiry() {
+    const input = $('#codeInput');
+    if (input) input.value = '';
+    setFieldError('');
+    state.record = null;
+    setResult('<div class="rounded-[6px] border border-dashed border-sand-300 bg-white px-4 py-7 text-center">'
+      + '<p class="text-sm font-semibold text-ink">Ready for the next reference</p>'
+      + '<p class="ar-ui mt-1 text-[14px] font-medium text-slate-600" dir="rtl" lang="ar">جاهز للتحقق من رقم آخر</p>'
+      + '<p class="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-slate-500">Enter a reference above to display the electronic visa.</p>'
+      + '</div>');
+    syncUrl('');
+    if (input) input.focus();
+  }
+
+  function readQueryCode() {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return normalizeCode(p.get('code') || p.get('visa') || '');
+    } catch (e) {
+      const m = window.location.search.match(/[?&](?:code|visa)=([^&#]+)/i);
+      return m ? normalizeCode(decodeURIComponent(m[1])) : '';
+    }
+  }
+
+  function bindPortal() {
+    const form = $('#inquiryForm');
+    const input = $('#codeInput');
+
+    input.addEventListener('input', function () {
+      const normalized = normalizeCode(input.value);
+      if (input.value !== normalized) {
+        input.value = normalized;
+        try { input.setSelectionRange(normalized.length, normalized.length); } catch (e) { }
+      }
+      if (normalized.length === 6) setFieldError('');
+    });
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      const code = normalizeCode(input.value);
+      if (code.length !== 6) {
+        setFieldError('Enter all six characters of the reference. أدخل الرقم المكوّن من ست خانات.');
+        input.focus();
+        return;
+      }
+      verify(code);
+    });
+
+    $('#pasteBtn').addEventListener('click', async function () {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error('unsupported');
+        const text = normalizeCode(await navigator.clipboard.readText());
+        if (!text) throw new Error('empty');
+        input.value = text;
+        toast('Reference pasted from the clipboard.');
+        if (text.length === 6) verify(text);
+      } catch (e) {
+        input.focus();
+        toast('This browser did not allow a clipboard read. Type or paste the reference into the field.');
+      }
+    });
+
+    $('#clearBtn').addEventListener('click', function () {
+      input.value = '';
+      setFieldError('');
+      input.focus();
+    });
+
+    const sampleBtn = $('#sampleBtn');
+    if (sampleBtn) sampleBtn.addEventListener('click', function () {
+      const c = normalizeCode(sampleBtn.getAttribute('data-fill'));
+      input.value = c;
+      verify(c);
+    });
+
+    $('#confirmCancel').addEventListener('click', function () { closeConfirm(false); });
+    $('#confirmOk').addEventListener('click', function () { closeConfirm(true); });
+    $('#shareClose').addEventListener('click', closeShare);
+    $('#shareRetry').addEventListener('click', async function () {
+      const ok = await copyText($('#shareInput').value);
+      if (ok) { closeShare(); toast('Link copied.'); } else { toast('Copying is blocked here. Press and hold the field to copy manually.'); }
+    });
+  }
+
+  const FORM_FIELDS = ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr',
+    'fTypeEn', 'fTypeAr', 'fGender', 'fDob', 'fIssue', 'fExpiry', 'fPhoto', 'fCode', 'fValidity'];
+
+  const presetOptions = (items, label) =>
+    '<option value="">' + label + '</option>' + items.map((it, i) => '<option value="' + i + '">' + esc(it.en) + '</option>').join('');
+
+  function fillSelects() {
+    $('#fNatPreset').innerHTML = presetOptions(NATIONALITIES, 'Choose a nationality preset');
+    $('#fProfPreset').innerHTML = presetOptions(PROFESSIONS, 'Choose a profession preset');
+    $('#fTypePreset').innerHTML = presetOptions(VISA_TYPES, 'Choose a visa type preset');
+  }
+
+  function readForm() {
+    return {
+      full_name_en: clean($('#fNameEn').value, 120),
+      full_name_ar: clean($('#fNameAr').value, 120),
+      passport_no: clean($('#fPassport').value, 20).toUpperCase(),
+      nationality_en: clean($('#fNatEn').value, 60),
+      nationality_ar: clean($('#fNatAr').value, 60),
+      profession_en: clean($('#fProfEn').value, 80),
+      profession_ar: clean($('#fProfAr').value, 80),
+      visa_type_en: clean($('#fTypeEn').value, 80),
+      visa_type_ar: clean($('#fTypeAr').value, 80),
+      gender: $('#fGender').value === 'Female' ? 'Female' : 'Male',
+      date_of_birth: $('#fDob').value || null,
+      issue_date: $('#fIssue').value || todayISO(),
+      expiry_date: $('#fExpiry').value || '',
+      photo_url: clean($('#fPhoto').value, 500),
+      code: normalizeCode($('#fCode').value)
+    };
+  }
+
+  function validateForm(rec) {
+    const problems = [];
+    if (!rec.full_name_en) problems.push('Full name in English is required.');
+    if (!rec.passport_no) problems.push('Passport number is required.');
+    else if (!/^[A-Z0-9-]{5,15}$/.test(rec.passport_no)) problems.push('Passport numbers use 5 to 15 letters, digits, or hyphens.');
+    if (!rec.nationality_en) problems.push('Nationality in English is required.');
+    if (!rec.visa_type_en) problems.push('A visa type is required, because the document prints it.');
+    if (!rec.code || rec.code.length !== 6) problems.push('The reference must be exactly six letters or digits.');
+    if (!rec.issue_date) problems.push('An issue date is required.');
+    if (!rec.expiry_date) problems.push('An expiry date is required.');
+    else if (rec.issue_date && rec.expiry_date < rec.issue_date) problems.push('The expiry date cannot fall before the issue date.');
+    return problems;
+  }
+
+  function applyValidity() {
+    const issue = $('#fIssue').value || todayISO();
+    const days = Number($('#fValidity').value || 90);
+    $('#fExpiry').value = addDays(issue, days);
+  }
+
+  function syncProfessionAr() {
+    const idx = $('#fProfPreset').value;
+    if (idx === '') return;
+    const p = PROFESSIONS[Number(idx)];
+    if (!p) return;
+    $('#fProfAr').value = $('#fGender').value === 'Female' ? (p.arf || p.ar) : p.ar;
+  }
+
+  function updatePhotoPreview() {
+    const img = $('#photoPreview');
+    img.onerror = function () { img.src = placeholderPhoto(); };
+    img.src = clean($('#fPhoto').value, 500) || placeholderPhoto();
+  }
+
+  function updateFormMode() {
+    const editing = !!state.editingId;
+    $('#formTitle').textContent = editing ? 'Edit visa record' : 'Create a visa record';
+    $('#formSubtitle').textContent = editing ? 'تعديل سجل التأشيرة' : 'إضافة سجل تأشيرة';
+    const saveLabel = $('#saveBtn').firstElementChild;
+    if (saveLabel) saveLabel.textContent = editing ? 'Save changes' : 'Save record';
+    show($('#cancelEditBtn'), editing);
+  }
+
+  function clearForm() {
+    ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr', 'fTypeEn', 'fTypeAr', 'fDob', 'fPhoto', 'fCode']
+      .forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['fNatPreset', 'fProfPreset', 'fTypePreset'].forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
+    $('#fGender').value = 'Male';
+    $('#fIssue').value = todayISO();
+    $('#fValidity').value = '90';
+    applyValidity();
+    updatePhotoPreview();
+    show($('#formError'), false);
+    state.editingId = null;
+    updateFormMode();
+  }
+
+  let draftTimer = null;
+  function saveDraft() {
+    const fields = {};
+    FORM_FIELDS.forEach(function (id) { const el = document.getElementById(id); if (el) fields[id] = el.value; });
+    safeSet(DRAFT_KEY, JSON.stringify({ fields: fields, editingId: state.editingId }));
+  }
+  function scheduleDraft() {
+    if (draftTimer) clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDraft, 500);
+  }
+  function restoreDraft() {
+    const raw = safeGet(DRAFT_KEY);
+    if (!raw) return false;
+    let data = null;
+    try { data = JSON.parse(raw); } catch (e) { return false; }
+    if (!data || !data.fields) return false;
+    const hasContent = ['fNameEn', 'fPassport', 'fCode', 'fNatEn', 'fProfEn'].some((k) => String(data.fields[k] || '').trim().length > 0);
+    if (!hasContent) return false;
+    FORM_FIELDS.forEach(function (id) { if (data.fields[id] != null) { const el = document.getElementById(id); if (el) el.value = data.fields[id]; } });
+    state.editingId = data.editingId || null;
+    updateFormMode();
+    updatePhotoPreview();
+    const note = $('#draftNote');
+    show(note, true);
+    note.innerHTML = 'An unsaved draft from this device was restored. '
+      + '<button type="button" id="draftClear" class="min-h-[32px] font-semibold text-navy underline">Discard it</button>'
+      + '<span class="ar-ui block" dir="rtl" lang="ar">تم استرجاع مسودة غير محفوظة من هذا الجهاز.</span>';
+    $('#draftClear').addEventListener('click', function () { safeDel(DRAFT_KEY); show(note, false); clearForm(); });
+    return true;
+  }
+
+  function startEdit(id) {
+    const rec = state.records.find(function (r) { return r.id === id; });
+    if (!rec) { toast('That record left the list. Refresh the register and try again.'); return; }
+    state.editingId = id;
+    $('#fNameEn').value = rec.full_name_en || '';
+    $('#fNameAr').value = rec.full_name_ar || '';
+    $('#fPassport').value = rec.passport_no || '';
+    $('#fNatEn').value = rec.nationality_en || '';
+    $('#fNatAr').value = rec.nationality_ar || '';
+    $('#fProfEn').value = rec.profession_en || '';
+    $('#fProfAr').value = rec.profession_ar || '';
+    $('#fTypeEn').value = rec.visa_type_en || '';
+    $('#fTypeAr').value = rec.visa_type_ar || '';
+    $('#fGender').value = rec.gender === 'Female' ? 'Female' : 'Male';
+    $('#fDob').value = rec.date_of_birth || '';
+    $('#fIssue').value = rec.issue_date || '';
+    $('#fExpiry').value = rec.expiry_date || '';
+    $('#fPhoto').value = rec.photo_url || '';
+    $('#fCode').value = rec.code || '';
+    updatePhotoPreview();
+    updateFormMode();
+    saveDraft();
+    toast('Editing reference ' + rec.code + '. Save changes to publish them.');
+    try { $('#formTitle').scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { }
+  }
+
+  async function saveRecord(ev) {
+    ev.preventDefault();
+    const rec = readForm();
+    const errEl = $('#formError');
+    const problems = validateForm(rec);
+    if (problems.length) {
+      errEl.textContent = problems.join(' ');
+      show(errEl, true);
+      try { errEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { }
+      return;
+    }
+    show(errEl, false);
+    const btn = $('#saveBtn');
+    btn.disabled = true;
+    try {
+      const existing = await state.store.find(rec.code);
+      if (existing && existing.id !== state.editingId) {
+        throw new Error('Reference ' + rec.code + ' is already in the register. Generate a different number.');
+      }
+      if (state.editingId) {
+        await state.store.update(state.editingId, rec);
+        toast('Record ' + rec.code + ' updated.');
+      } else {
+        await state.store.create(rec);
+        toast('Record ' + rec.code + ' saved. Every device on this build sees it on the next check.');
+      }
+      safeDel(DRAFT_KEY);
+      show($('#draftNote'), false);
+      clearForm();
+      await refreshRecords();
+    } catch (e) {
+      errEl.textContent = (e && e.message) ? e.message : 'The record could not be saved.';
+      show(errEl, true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function deleteRecord(id) {
+    const rec = state.records.find(function (r) { return r.id === id; });
+    if (!rec) return;
+    const ok = await openConfirm({
+      title: 'Delete record',
+      body: 'Delete the record for ' + (rec.full_name_en || 'this applicant') + ' with reference ' + rec.code + '? Its share link stops working straight away.',
+      okLabel: 'Delete record'
+    });
+    if (!ok) return;
+    try {
+      await state.store.remove(id);
+      toast('Record ' + rec.code + ' deleted.');
+      if (state.editingId === id) clearForm();
+      await refreshRecords();
+    } catch (e) {
+      toast((e && e.message) ? e.message : 'The record could not be deleted.');
+    }
+  }
+
+  const statusChip = (r) => {
+    const expired = statusOf(r) === 'expired';
+    return '<span class="inline-flex items-center rounded-[4px] border px-2 py-0.5 text-[11px] font-semibold '
+      + (expired ? 'border-alert text-alert' : 'border-green text-green') + '">' + (expired ? 'Expired' : 'Valid') + '</span>';
+  };
+
+  function actionsCell(r, minH) {
+    const base = 'inline-flex items-center rounded-[4px] border px-2.5 text-[12px] font-semibold ';
+    return '<div class="flex flex-wrap gap-1.5">'
+      + '<button type="button" data-act="link" data-id="' + esc(r.id) + '" class="' + base + 'border-sand-300 text-navy hover:bg-sand-50 ' + minH + '">Copy link</button>'
+      + '<button type="button" data-act="edit" data-id="' + esc(r.id) + '" class="' + base + 'border-sand-300 text-navy hover:bg-sand-50 ' + minH + '">Edit</button>'
+      + '<button type="button" data-act="delete" data-id="' + esc(r.id) + '" class="' + base + 'border-alert text-alert hover:bg-[#fdf4f4] ' + minH + '">Delete</button>'
+      + '</div>';
+  }
+
+  function tableRowHTML(r) {
+    return '<tr>'
+      + '<td class="tabular mono-doc px-3 py-2 align-top font-semibold text-navy">' + esc(r.code) + '</td>'
+      + '<td class="px-3 py-2 align-top"><p class="font-semibold text-ink">' + esc(r.full_name_en || '-') + '</p>'
+      + (r.full_name_ar ? '<p class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">' + esc(r.full_name_ar) + '</p>' : '')
+      + '</td>'
+      + '<td class="mono-doc px-3 py-2 align-top">' + esc(r.passport_no || '-') + '</td>'
+      + '<td class="px-3 py-2 align-top">' + esc(r.nationality_en || '-') + '</td>'
+      + '<td class="px-3 py-2 align-top">' + esc(r.visa_type_en || '-') + '</td>'
+      + '<td class="tabular px-3 py-2 align-top">' + esc(fmtDate(r.issue_date)) + ' · ' + esc(fmtDate(r.expiry_date)) + '</td>'
+      + '<td class="px-3 py-2 align-top">' + statusChip(r) + '</td>'
+      + '<td class="px-3 py-2 align-top">' + actionsCell(r, 'min-h-[36px]') + '</td>'
+      + '</tr>';
+  }
+
+  function cardHTML(r) {
+    return '<article class="rounded-[6px] border border-sand-200 bg-white p-3">'
+      + '<div class="flex items-start justify-between gap-2">'
+      + '<div class="min-w-0">'
+      + '<p class="tabular mono-doc text-[16px] font-semibold text-navy">' + esc(r.code) + '</p>'
+      + '<p class="mt-0.5 truncate text-[13px] font-semibold text-ink">' + esc(r.full_name_en || '-') + '</p>'
+      + (r.full_name_ar ? '<p class="ar-ui truncate text-[12px] text-slate-600" dir="rtl" lang="ar">' + esc(r.full_name_ar) + '</p>' : '')
+      + '</div>' + statusChip(r) + '</div>'
+      + '<dl class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12px] text-slate-700">'
+      + '<div><dt class="text-[10px] font-semibold text-slate-500">Passport</dt><dd class="mono-doc">' + esc(r.passport_no || '-') + '</dd></div>'
+      + '<div><dt class="text-[10px] font-semibold text-slate-500">Nationality</dt><dd>' + esc(r.nationality_en || '-') + '</dd></div>'
+      + '<div class="col-span-2"><dt class="text-[10px] font-semibold text-slate-500">Visa type</dt><dd>' + esc(r.visa_type_en || '-') + '</dd></div>'
+      + '<div class="col-span-2"><dt class="text-[10px] font-semibold text-slate-500">Validity</dt><dd class="tabular">' + esc(fmtDate(r.issue_date)) + ' · ' + esc(fmtDate(r.expiry_date)) + '</dd></div>'
+      + '</dl>'
+      + '<div class="mt-3">' + actionsCell(r, 'min-h-[44px]') + '</div>'
+      + '</article>';
+  }
+
+  function filteredRecords() {
+    const q = clean($('#searchInput').value, 60).toLowerCase();
+    if (!q) return state.records;
+    return state.records.filter(function (r) {
+      return [r.code, r.full_name_en, r.full_name_ar, r.passport_no, r.nationality_en, r.visa_type_en]
+        .join(' ').toLowerCase().indexOf(q) >= 0;
+    });
+  }
+
+  function renderList() {
+    const region = $('#listRegion');
+    if (!state.records.length) {
+      region.innerHTML = '<div class="rounded-[4px] border border-dashed border-sand-300 px-4 py-6 text-center">'
+        + '<p class="text-[13px] font-semibold text-ink">The register is empty</p>'
+        + '<p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">السجل فارغ</p>'
+        + '<p class="mx-auto mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">Create the first record with the form above. Until Supabase is connected, records stay in this browser.</p>'
+        + '</div>';
+      return;
+    }
+    const rows = filteredRecords();
+    if (!rows.length) {
+      region.innerHTML = '<p class="px-1 py-4 text-[13px] text-slate-600">No record matches that search. Clear the search field to see all '
+        + state.records.length + ' records.</p>';
+      return;
+    }
+    const total = state.records.length;
+    const label = (n) => n + (n === 1 ? ' record' : ' records');
+    const count = rows.length === total ? label(total) : rows.length + ' of ' + label(total);
+    region.innerHTML = '<p class="mb-2 text-[12px] text-slate-500">' + count + '</p>'
+      + '<div class="hidden md:block"><div class="max-w-full overflow-x-auto rounded-[4px] border border-slate-200">'
+      + '<table class="w-full min-w-[900px] border-collapse text-left text-[13px]">'
+      + '<thead class="bg-sand-50 text-[11px] font-semibold text-slate-600"><tr>'
+      + '<th class="px-3 py-2 font-semibold">Reference</th>'
+      + '<th class="px-3 py-2 font-semibold">Applicant</th>'
+      + '<th class="px-3 py-2 font-semibold">Passport</th>'
+      + '<th class="px-3 py-2 font-semibold">Nationality</th>'
+      + '<th class="px-3 py-2 font-semibold">Visa type</th>'
+      + '<th class="px-3 py-2 font-semibold">Validity</th>'
+      + '<th class="px-3 py-2 font-semibold">Status</th>'
+      + '<th class="px-3 py-2 font-semibold">Actions</th>'
+      + '</tr></thead><tbody class="divide-y divide-slate-100 bg-white">'
+      + rows.map(tableRowHTML).join('')
+      + '</tbody></table></div></div>'
+      + '<div class="space-y-3 md:hidden">' + rows.map(cardHTML).join('') + '</div>';
+  }
+
+  async function refreshRecords() {
+    const region = $('#listRegion');
+    region.innerHTML = '<div class="space-y-2 py-2">'
+      + '<div class="skeleton h-4 w-1/3 rounded-[3px]"></div>'
+      + '<div class="skeleton h-12 w-full rounded-[4px]"></div>'
+      + '<div class="skeleton h-12 w-full rounded-[4px]"></div>'
+      + '</div>';
+    try {
+      state.records = await state.store.list();
+      renderList();
+    } catch (e) {
+      const msg = (e && e.message) ? e.message : 'unknown error';
+      region.innerHTML = '<div class="rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-3 text-[13px] leading-relaxed text-alert">'
+        + 'The register could not be read: ' + esc(msg) + '. Check the Supabase URL, key, and policies, then retry. '
+        + '<button type="button" id="listRetry" class="min-h-[36px] font-semibold underline">Retry</button></div>';
+      $('#listRetry').addEventListener('click', refreshRecords);
+    }
+  }
+
+  const sessionOk = () => {
+    const raw = safeGet(SESSION_KEY);
+    const ts = Number(raw);
+    return !!raw && ts > 0 && (Date.now() - ts) < ADMIN_SESSION_HOURS * 3600 * 1000;
+  };
+
+  function unlockConsole() {
+    show($('#adminGate'), false);
+    show($('#adminConsole'), true);
+  }
+
+  function lockConsole(announce) {
+    safeDel(SESSION_KEY);
+    show($('#adminConsole'), false);
+    show($('#adminGate'), true);
+    $('#passInput').value = '';
+    if (announce) toast('Console locked. The passcode is needed again.');
+    try { $('#passInput').focus(); } catch (e) { }
+  }
+
+  function updateStoreBadges() {
+    const badge = $('#modeBadge');
+    const note = $('#storeNote');
+    if (state.mode === 'cloud') {
+      badge.textContent = 'Supabase cloud store';
+      badge.className = 'rounded-[4px] border border-green bg-green-50 px-2.5 py-1 text-[12px] font-semibold text-green-700';
+      note.textContent = 'Rows live in Supabase, so a record saved here also appears inside the Telegram in-app browser on any other phone.';
+      note.className = 'mt-2 rounded-[4px] border border-green-100 bg-green-50 px-3 py-2 text-[12px] leading-relaxed text-green-700';
+    } else {
+      badge.textContent = 'Local demo store';
+      badge.className = 'rounded-[4px] border border-gold-600 bg-sand-50 px-2.5 py-1 text-[12px] font-semibold text-gold-700';
+      note.textContent = state.cloudError
+        ? 'Cloud mode was configured but the connection failed: ' + state.cloudError + ' Records stay in this browser until that is fixed.'
+        : 'Records stay in this browser. Connect Supabase to sync them across devices and into the Telegram webview.';
+      note.className = 'mt-2 rounded-[4px] border border-sand-300 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700';
+    }
+    const sample = $('#sampleBtn');
+    if (sample) show(sample, state.mode !== 'cloud');
+  }
+
+  function bindAdmin() {
+    $('#gateForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      const err = $('#gateError');
+      if ($('#passInput').value === ADMIN_PASSCODE) {
+        show(err, false);
+        safeSet(SESSION_KEY, String(Date.now()));
+        $('#passInput').value = '';
+        unlockConsole();
+        refreshRecords();
+        toast('Console unlocked.');
+      } else {
+        err.textContent = 'That passcode does not match. The demo passcode is admin2026.';
+        show(err, true);
+        $('#passInput').select();
+      }
+    });
+
+    $('#lockBtn').addEventListener('click', function () { lockConsole(true); });
+    $('#refreshBtn').addEventListener('click', function () { refreshRecords().then(function () { toast('Register refreshed.'); }); });
+    $('#randomBtn').addEventListener('click', function () { $('#fCode').value = randomCode(); scheduleDraft(); });
+    $('#codeBtn').addEventListener('click', function () { $('#fCode').value = randomCode(); scheduleDraft(); });
+    $('#resetFormBtn').addEventListener('click', function () { safeDel(DRAFT_KEY); show($('#draftNote'), false); clearForm(); toast('Form cleared for a new record.'); });
+    $('#cancelEditBtn').addEventListener('click', function () { clearForm(); toast('Editing cancelled. The record is unchanged.'); });
+    $('#fCode').addEventListener('input', function () { this.value = normalizeCode(this.value); scheduleDraft(); });
+    $('#visaForm').addEventListener('submit', saveRecord);
+
+    ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr', 'fTypeEn', 'fTypeAr', 'fDob', 'fExpiry']
+      .forEach(function (id) { const el = document.getElementById(id); if (el) el.addEventListener('input', scheduleDraft); });
+
+    $('#fIssue').addEventListener('change', function () { applyValidity(); scheduleDraft(); });
+    $('#fValidity').addEventListener('change', function () { applyValidity(); scheduleDraft(); });
+    $('#fGender').addEventListener('change', function () { syncProfessionAr(); scheduleDraft(); });
+    $('#fPhoto').addEventListener('input', function () { updatePhotoPreview(); scheduleDraft(); });
+    $('#searchInput').addEventListener('input', renderList);
+
+    $('#fNatPreset').addEventListener('change', function () {
+      if (this.value === '') return;
+      const n = NATIONALITIES[Number(this.value)];
+      if (n) { $('#fNatEn').value = n.en; $('#fNatAr').value = n.ar; scheduleDraft(); }
+    });
+    $('#fProfPreset').addEventListener('change', function () {
+      if (this.value === '') return;
+      const p = PROFESSIONS[Number(this.value)];
+      if (p) { $('#fProfEn').value = p.en; syncProfessionAr(); scheduleDraft(); }
+    });
+    $('#fTypePreset').addEventListener('change', function () {
+      if (this.value === '') return;
+      const t = VISA_TYPES[Number(this.value)];
+      if (t) { $('#fTypeEn').value = t.en; $('#fTypeAr').value = t.ar; scheduleDraft(); }
+    });
+
+    $('#listRegion').addEventListener('click', function (ev) {
+      const b = ev.target.closest('button[data-act]');
+      if (!b) return;
+      const id = b.getAttribute('data-id');
+      const act = b.getAttribute('data-act');
+      if (act === 'link') {
+        const rec = state.records.find(function (r) { return r.id === id; });
+        if (rec) shareLink(shareLinkFor(rec.code));
+      } else if (act === 'edit') {
+        startEdit(id);
+      } else if (act === 'delete') {
+        deleteRecord(id);
+      }
+    });
+  }
+
+  function showView(name) {
+    const isAdmin = name === 'admin';
+    show($('#viewPortal'), !isAdmin);
+    show($('#viewAdmin'), isAdmin);
+    $$('[data-nav]').forEach(function (a) {
+      if (a.getAttribute('data-nav') === (isAdmin ? 'admin' : 'portal')) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  }
+
+  function routeFromHash() {
+    const adminWanted = window.location.hash.replace('#', '').toLowerCase() === 'admin';
+    showView(adminWanted ? 'admin' : 'portal');
+    if (adminWanted) {
+      if (sessionOk()) { unlockConsole(); refreshRecords(); } else { lockConsole(false); }
+      try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) { window.scrollTo(0, 0); }
+    } else {
+      syncUrl(state.record ? state.record.code : '');
+    }
+  }
+
+  function trapTab(container, ev) {
+    const focusables = $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', container)
+      .filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+    if (!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+  }
+
+  document.addEventListener('keydown', function (ev) {
+    const confirmOpen = isShown($('#confirmModal'));
+    const shareOpen = isShown($('#shareModal'));
+    if (ev.key === 'Escape') {
+      if (confirmOpen) closeConfirm(false);
+      else if (shareOpen) closeShare();
+      return;
+    }
+    if (ev.key === 'Tab' && confirmOpen) trapTab($('#confirmModal'), ev);
+    else if (ev.key === 'Tab' && shareOpen) trapTab($('#shareModal'), ev);
+  });
+
+  async function boot() {
+    fillSelects();
+    bindPortal();
+    bindAdmin();
+    window.addEventListener('hashchange', routeFromHash);
+
+    await initStore();
+    if (state.mode === 'local') seedLocalOnce();
+    updateStoreBadges();
+    clearForm();
+
+    /* Read the query before routing: the router rewrites the address bar. */
+    const qCode = readQueryCode();
+
+    routeFromHash();
+    restoreDraft();
+
+    if (qCode.length === 6) {
+      verify(qCode);
+    } else if (qCode.length) {
+      const input = $('#codeInput');
+      if (input) input.value = qCode;
+      setFieldError('The shared link carried an incomplete reference. Enter the remaining characters.');
+    }
+
+    if (sessionOk() && !state.records.length) refreshRecords();
+  }
+
+  window.KW = {
+    verify: verify,
+    capture: captureDoc,
+    refresh: refreshRecords,
+    shareLinkFor: shareLinkFor,
+    copyText: copyText,
+    state: state
+  };
+
+  boot();
+})();
+</script>
+</body>
+</html>
