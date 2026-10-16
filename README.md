@@ -59,16 +59,12 @@ The status badge in the console says which mode is live.
 * **Local demo store** (default) keeps records in this browser's `localStorage` under the
   key `kw_visas_demo_v1`. A single sample record (`123456`, clearly named
   `SAMPLE APPLICANT NAME`) is seeded once so a fresh clone has something to verify.
-* **Supabase cloud store** turns on when both constants at the top of the script in
-  `index.html` are filled in:
-
-  ```js
-  const SUPABASE_URL = 'https://your-project-ref.supabase.co';
-  const SUPABASE_ANON_KEY = 'your-anon-public-key';
-  ```
-
-  1. Run `supabase-schema.sql` in the Supabase SQL editor.
-  2. Paste the project URL and the anon key into those two constants, then reload.
+* **Supabase cloud store** is the live mode on the deployed site: the two constants at the
+  top of the script in `index.html` point at the `kuwait` project, where
+  `supabase-schema.sql` has already been run, so the `kuwait_visas` table exists and every
+  phone that opens a share link reads the same rows. To move the app to a different
+  project, run that SQL file in the new project's SQL editor and swap the two constants.
+  Either key format works there: the publishable key, or the legacy anon JWT.
 
   Cloud mode needs an `http` or `https` origin: a `file://` page is blocked from calling
   the API, so it stays in local mode there. If the connection fails, the console shows

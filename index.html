@@ -219,12 +219,9 @@ tailwind.config = {
     <p id="storeNote" class="mt-2 rounded-[4px] border border-sand-300 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700"></p>
 
     <details class="mt-3 rounded-[6px] border border-sand-200 bg-white px-4 py-3">
-      <summary class="text-sm font-semibold text-navy">Supabase connection <span class="font-normal text-slate-500">(two steps, then every device sees the same rows)</span></summary>
-      <ol class="mt-3 space-y-2 text-[13px] leading-relaxed text-slate-700">
-        <li><span class="font-semibold">1.</span> Run <code class="mono-doc rounded-[3px] bg-sand-50 px-1">supabase-schema.sql</code> in the Supabase SQL Editor. It creates <code class="mono-doc rounded-[3px] bg-sand-50 px-1">kuwait_visas</code> with row level security and demo read plus write policies.</li>
-        <li><span class="font-semibold">2.</span> Paste the project URL and the anon public key into <code class="mono-doc rounded-[3px] bg-sand-50 px-1">SUPABASE_URL</code> and <code class="mono-doc rounded-[3px] bg-sand-50 px-1">SUPABASE_ANON_KEY</code> at the top of the script in <code class="mono-doc rounded-[3px] bg-sand-50 px-1">index.html</code>, then reload the page. Serve over http or https for cloud mode; a file:// page can only use the local store.</li>
-      </ol>
-      <p class="mt-3 text-[11px] leading-relaxed text-slate-500">The shipped policies allow anyone holding the anon key to read and write. That matches the demo brief. Before any real use, move writes behind Supabase Auth or an edge function.</p>
+      <summary class="text-sm font-semibold text-navy">Cloud storage <span class="font-normal text-slate-500">(how a record reaches another phone)</span></summary>
+      <p class="mt-3 text-[13px] leading-relaxed text-slate-700">Records are stored in the Supabase project configured at the top of the script in <code class="mono-doc rounded-[3px] bg-sand-50 px-1">index.html</code>, in the table <code class="mono-doc rounded-[3px] bg-sand-50 px-1">kuwait_visas</code> created by <code class="mono-doc rounded-[3px] bg-sand-50 px-1">supabase-schema.sql</code>. A record saved here is readable from any phone that opens its share link, including inside Telegram.</p>
+      <p class="mt-2 text-[11px] leading-relaxed text-slate-500">This page ships only the public publishable key, which can read and write, so keep every record fake. The secret and service_role keys from the Supabase dashboard must never be pasted into a page like this one.</p>
     </details>
 
     <div class="mt-4 rounded-[6px] border border-sand-200 bg-white paper">
@@ -432,9 +429,9 @@ tailwind.config = {
 (function () {
   'use strict';
 
-  /* Configuration: paste the Supabase project values here, then reload. */
-  const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR-SUPABASE-ANON-KEY';
+  /* Configuration: the connected Supabase project. Publishable and legacy anon keys both work here. */
+  const SUPABASE_URL = 'https://wkcdhxnnbpsayrdanmkr.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_nijfhfb8aYJy8AgqMZm-sA_a6Rf1Xx3';
   const TABLE = 'kuwait_visas';
   const ADMIN_PASSCODE = 'admin2026';
   const ADMIN_SESSION_HOURS = 12;
