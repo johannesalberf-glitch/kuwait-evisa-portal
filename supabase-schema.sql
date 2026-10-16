@@ -41,6 +41,9 @@ create table if not exists public.kuwait_visas (
 comment on table public.kuwait_visas is
   'Demonstration visa records for the local eVisa status portal. Placeholder data only.';
 
+comment on column public.kuwait_visas.photo_url is
+  'Image URL, or a data:image/jpeg;base64 picture uploaded in the console and already resized to 720 px on the longest edge.';
+
 create index if not exists kuwait_visas_code_idx on public.kuwait_visas (code);
 create index if not exists kuwait_visas_created_idx on public.kuwait_visas (created_at desc);
 create index if not exists kuwait_visas_expiry_idx on public.kuwait_visas (expiry_date);

@@ -80,12 +80,22 @@ a read-by-reference policy public.
 Reference (six characters, with a *Generate random six-digit code* action), full name in
 English and Arabic, passport number, nationality, sex, date of birth, profession, visa
 type, issue date, validity preset (30/60/90/180/365 days) with an editable expiry date,
-and an optional photo URL.
+and a photograph, either uploaded from the device or given as an image URL.
 
 Nationality, profession and visa type each have a preset list that fills the English and
 Arabic fields, and every filled value stays editable, so an unlisted nationality or
 profession is just typed in. Professions carry a feminine Arabic form that follows the
 sex field. Missing values print as `-` rather than being invented.
+
+### Photographs
+
+*Upload image* takes a JPG, PNG or WebP from the device, draws it onto a canvas, keeps it
+at 720 px on the longest edge as a JPEG and stores that picture inside the record's
+`photo_url` field. Keeping the picture in the record means a share link carries the face
+with it, and the PNG export never runs into a cross-origin block. Pasting an image URL
+still works for pictures that already live online. Leaving the field empty keeps the
+placeholder portrait. A record with a photo is roughly 40 to 150 KB, fine for a demo table
+but worth knowing before adding hundreds of rows.
 
 Drafts are kept in `localStorage` (`kw_visa_draft_v1`) while a form is half finished, and
 the console remembers the unlocked session for 12 hours (`kw_admin_session_v1`).

@@ -59,6 +59,7 @@ tailwind.config = {
   .watermark { font-family: Amiri, 'IBM Plex Sans Arabic', serif; color: #003366; opacity: .07; }
   details > summary { cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
+  details[open] > summary .faq-plus { transform: rotate(45deg); }
   .is-hidden { display: none !important; }
   .nav-link { display: inline-flex; flex: none; align-items: center; gap: 8px; min-height: 48px; padding: 0 12px; color: #cdd8e5; border-bottom: 2px solid transparent; text-decoration: none; }
   .nav-link:hover { color: #fff; background: rgba(255, 255, 255, .06); }
@@ -99,7 +100,7 @@ tailwind.config = {
       <h1 class="mt-0.5 text-[17px] font-semibold leading-tight sm:text-lg">State of Kuwait · Ministry of Interior</h1>
       <p class="text-[12px] text-mist">General Directorate of Residency Affairs</p>
     </div>
-    <div class="min-w-0 text-right">
+    <div class="min-w-0 basis-full border-t border-gold-500/40 pt-2 text-left sm:basis-auto sm:border-0 sm:pt-0 sm:text-right">
       <p class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">الإدارة العامة لشؤون الإقامة</p>
       <p class="mt-1 text-[11px] text-mist">e-Visa service · خدمة التأشيرة الإلكترونية</p>
     </div>
@@ -120,8 +121,36 @@ tailwind.config = {
 </header>
 
 <main id="main" class="flex-1 pb-10">
-<section id="viewPortal" class="mx-auto max-w-5xl px-4">
-  <div id="inquiry" class="mt-6 scroll-mt-4 rounded-[6px] border border-sand-200 bg-white paper">
+<section id="viewPortal">
+  <div class="relative overflow-hidden border-b-2 border-gold-500 bg-navy text-white">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-10 -top-6 h-[260px] w-[260px] opacity-[0.08]">
+      <svg viewBox="0 0 64 72" class="h-full w-full">
+        <path d="M32 3 58 12v26c0 14-11 25-26 31C17 63 6 52 6 38V12Z" fill="none" stroke="#e8d7a0" stroke-width="1.6"/>
+        <path d="M32 9 52 16v22c0 11-8.6 19.9-20 24.7C20.6 57.9 12 49 12 38V16Z" fill="none" stroke="#e8d7a0" stroke-width="0.7"/>
+        <circle cx="32" cy="33" r="9.5" fill="none" stroke="#e8d7a0" stroke-width="1"/>
+        <path d="M22 48h20l-3.4 6a2.6 2.6 0 0 1-2.3 1.4h-8.6a2.8 2.8 0 0 1-2.4-1.5Z" fill="#e8d7a0" opacity="0.45"/>
+      </svg>
+    </div>
+    <div class="relative mx-auto max-w-5xl px-4 pb-24 pt-8 sm:pb-28 sm:pt-10">
+      <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold-300">Electronic visa · Status inquiry</p>
+      <h2 class="mt-2 max-w-2xl text-[26px] font-semibold leading-tight sm:text-[34px]">Check a Kuwait electronic visa</h2>
+      <p class="ar-doc mt-1 text-[22px] font-bold leading-tight text-gold-200 sm:text-[27px]" dir="rtl" lang="ar">التحقق من التأشيرة الإلكترونية</p>
+      <p class="mt-3 max-w-xl text-[14px] leading-relaxed text-mist">
+        Enter the six-character reference from the eVisa notification to see the visa document, its validity dates and its current status.
+      </p>
+      <p class="ar-ui mt-1 max-w-xl text-[14px] leading-relaxed text-mist" dir="rtl" lang="ar">
+        أدخل رقم المرجع المكوّن من ست خانات لعرض مستند التأشيرة وتواريخ صلاحيتها وحالتها الحالية.
+      </p>
+      <ul class="mt-4 flex flex-wrap gap-2">
+        <li class="rounded-[4px] border border-gold-500 px-2.5 py-1 text-[11px] font-semibold text-gold-200">Six-character reference</li>
+        <li class="rounded-[4px] border border-gold-500 px-2.5 py-1 text-[11px] font-semibold text-gold-200">Document in English and Arabic</li>
+        <li class="rounded-[4px] border border-gold-500 px-2.5 py-1 text-[11px] font-semibold text-gold-200">Shareable result link</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-5xl px-4">
+  <div id="inquiry" class="-mt-16 scroll-mt-4 rounded-[6px] border border-sand-200 bg-white paper sm:-mt-20">
     <div class="border-b border-sand-200 bg-sand-50 px-4 py-4 sm:px-6">
       <h2 class="text-lg font-semibold leading-tight text-navy sm:text-xl">eVisa status inquiry</h2>
       <p class="ar-ui mt-0.5 text-[15px] font-semibold leading-tight text-navy-800" dir="rtl" lang="ar">استعلام عن التأشيرة الإلكترونية</p>
@@ -176,6 +205,235 @@ tailwind.config = {
       </p>
     </div>
   </div>
+
+  <section aria-labelledby="howTitle" class="mt-10">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h2 id="howTitle" class="text-lg font-semibold text-navy sm:text-xl">How the check works</h2>
+      <p class="ar-ui text-[15px] font-semibold text-navy-800" dir="rtl" lang="ar">كيف يتم التحقق</p>
+    </div>
+    <div class="section-rule mt-3"><i></i></div>
+    <ol class="mt-4 grid gap-3 sm:grid-cols-3">
+      <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+        <div class="flex items-center gap-3">
+          <span class="tabular grid h-8 w-8 flex-none place-items-center rounded-full border border-gold-600 text-[14px] font-semibold text-gold-700">1</span>
+          <p class="text-[14px] font-semibold text-ink">Find the reference</p>
+        </div>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-600">
+          Six characters, printed on the eVisa notification. A link that carries the number checks it by itself when the page opens.
+        </p>
+        <p class="ar-ui mt-1 text-[13px] leading-relaxed text-slate-600" dir="rtl" lang="ar">ست خانات كما تظهر في إشعار التأشيرة.</p>
+      </li>
+      <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+        <div class="flex items-center gap-3">
+          <span class="tabular grid h-8 w-8 flex-none place-items-center rounded-full border border-gold-600 text-[14px] font-semibold text-gold-700">2</span>
+          <p class="text-[14px] font-semibold text-ink">Enter it above</p>
+        </div>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-600">
+          One field, digits or letters. Capitals are applied for you, and the paste action reads the clipboard on phones.
+        </p>
+        <p class="ar-ui mt-1 text-[13px] leading-relaxed text-slate-600" dir="rtl" lang="ar">حقل واحد يقبل الأرقام والحروف.</p>
+      </li>
+      <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+        <div class="flex items-center gap-3">
+          <span class="tabular grid h-8 w-8 flex-none place-items-center rounded-full border border-gold-600 text-[14px] font-semibold text-gold-700">3</span>
+          <p class="text-[14px] font-semibold text-ink">Read, save or share</p>
+        </div>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-600">
+          The document shows the holder, the dates and the status. Save it as an image, print it as PDF, or copy a link that reopens the same check.
+        </p>
+        <p class="ar-ui mt-1 text-[13px] leading-relaxed text-slate-600" dir="rtl" lang="ar">نزّل المستند أو اطبعه أو شاركه برابط.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="docTitle" class="mt-10">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h2 id="docTitle" class="text-lg font-semibold text-navy sm:text-xl">What the electronic visa shows</h2>
+      <p class="ar-ui text-[15px] font-semibold text-navy-800" dir="rtl" lang="ar">ماذا يعرض المستند</p>
+    </div>
+    <div class="section-rule mt-3"><i></i></div>
+    <div class="mt-4 grid gap-4 lg:grid-cols-[1.25fr_1fr]">
+      <div class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+        <ul class="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Full name</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">الاسم بالكامل</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Passport number</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">رقم الجواز</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Nationality</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">الجنسية</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Sex</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">الجنس</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Date of birth</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">تاريخ الميلاد</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Profession</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">المهنة</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Visa type</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">نوع التأشيرة</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Issue and expiry dates</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">تاريخا الإصدار والانتهاء</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Reference number</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">رقم التأشيرة</span></li>
+          <li class="flex items-baseline justify-between gap-2 border-b border-dotted border-slate-300 pb-1 text-[13px]"><span class="font-semibold text-ink">Photograph and seal</span><span class="ar-ui text-slate-600" dir="rtl" lang="ar">الصورة والختم</span></li>
+        </ul>
+        <p class="mt-3 text-[11px] leading-relaxed text-slate-500">
+          The photograph, the seal, the barcode, the QR block and the MRZ lines on the demonstration document are labelled placeholders. Nothing on it is scannable or verifiable.
+        </p>
+      </div>
+      <div class="grid content-start gap-3">
+        <div class="rounded-[6px] border border-green bg-white p-4 paper">
+          <span class="inline-flex items-center rounded-[4px] border border-green px-2 py-0.5 text-[11px] font-semibold text-green">Valid</span>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-700">
+            A green strip carries the expiry date, the days remaining, and the Arabic line
+            <span class="ar-doc text-[14px] font-semibold text-ink" dir="rtl" lang="ar">حالة التأشيرة: سارية</span>.
+          </p>
+        </div>
+        <div class="rounded-[6px] border border-alert bg-white p-4 paper">
+          <span class="inline-flex items-center rounded-[4px] border border-alert px-2 py-0.5 text-[11px] font-semibold text-alert">Expired</span>
+          <p class="mt-2 text-[13px] leading-relaxed text-slate-700">
+            Past the expiry date the strip turns red, counts the days since, and reads
+            <span class="ar-doc text-[14px] font-semibold text-ink" dir="rtl" lang="ar">حالة التأشيرة: منتهية الصلاحية</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="linkTitle" class="mt-10">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h2 id="linkTitle" class="text-lg font-semibold text-navy sm:text-xl">Open the same visa on any phone</h2>
+      <p class="ar-ui text-[15px] font-semibold text-navy-800" dir="rtl" lang="ar">افتح التأشيرة نفسها على أي هاتف</p>
+    </div>
+    <div class="section-rule mt-3"><i></i></div>
+    <div class="mt-4 grid gap-4 lg:grid-cols-[1.25fr_1fr]">
+      <div class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+        <p class="text-[13px] leading-relaxed text-slate-700">
+          Every document carries a Copy share link action. The link adds the reference to this page's address,
+          so opening it in Telegram, WhatsApp or any browser starts the same check by itself, on a phone that has
+          never seen the console.
+        </p>
+        <p class="ar-ui mt-1 text-[13px] leading-relaxed text-slate-700" dir="rtl" lang="ar">
+          لكل مستند زر لنسخ رابط المشاركة يضيف رقم المرجع إلى عنوان الصفحة، وعند فتحه في تيليجرام أو واتساب يبدأ التحقق تلقائياً على أي هاتف.
+        </p>
+        <div class="mt-3 rounded-[4px] border border-dashed border-sand-300 bg-sand-50 px-3 py-2">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500">Format of a share link</p>
+          <p class="mono-doc mt-1 break-all text-[13px] text-navy">https://…/?code=123456</p>
+        </div>
+      </div>
+      <ul class="grid content-start gap-3">
+        <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+          <p class="text-[13px] font-semibold text-ink">Records travel through Supabase</p>
+          <p class="mt-1 text-[13px] leading-relaxed text-slate-600">A record saved in the console is written to the connected Supabase project, which is why a link works on a device that never opened it.</p>
+          <p class="ar-ui mt-1 text-[12px] leading-relaxed text-slate-600" dir="rtl" lang="ar">تُحفظ السجلات في مشروع Supabase المتصل، لذلك يعمل الرابط على أي جهاز.</p>
+        </li>
+        <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
+          <p class="text-[13px] font-semibold text-ink">Download or print</p>
+          <p class="mt-1 text-[13px] leading-relaxed text-slate-600">Download image saves a PNG of the document, and Print or save as PDF uses a print view with only the document on the page.</p>
+          <p class="ar-ui mt-1 text-[12px] leading-relaxed text-slate-600" dir="rtl" lang="ar">نزّل المستند كصورة أو اطبعه كملف PDF.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="staffTitle" class="mt-10 rounded-[6px] border border-sand-200 bg-sand-50 px-4 py-4 paper">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="min-w-[240px] flex-1">
+        <h2 id="staffTitle" class="text-base font-semibold text-navy">Staff console</h2>
+        <p class="ar-ui text-[13px] font-semibold text-navy-800" dir="rtl" lang="ar">لوحة الموظفين</p>
+        <p class="mt-2 max-w-xl text-[13px] leading-relaxed text-slate-600">
+          Create a record, upload a photograph, copy a share link for it, then edit or delete it. The console needs
+          the demo passcode and the gate stays in the page, not on a server.
+        </p>
+      </div>
+      <a href="#admin" class="inline-flex min-h-[48px] flex-none items-center gap-3 rounded-[4px] border border-navy-900 bg-navy px-5 text-white hover:bg-navy-800">
+        <span class="text-[14px] font-semibold">Open staff console</span>
+        <span class="ar-ui text-[12px] font-semibold text-gold-200" dir="rtl" lang="ar">دخول</span>
+      </a>
+    </div>
+  </section>
+
+  <section aria-labelledby="faqTitle" class="mt-10 pb-2">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h2 id="faqTitle" class="text-lg font-semibold text-navy sm:text-xl">Questions about this portal</h2>
+      <p class="ar-ui text-[15px] font-semibold text-navy-800" dir="rtl" lang="ar">أسئلة عن هذه البوابة</p>
+    </div>
+    <div class="section-rule mt-3"><i></i></div>
+    <div class="mt-4 divide-y divide-sand-200 overflow-hidden rounded-[6px] border border-sand-200 bg-white paper">
+      <details class="group px-4 py-3">
+        <summary class="flex items-center justify-between gap-4">
+          <span>
+            <span class="block text-[14px] font-semibold text-ink">Is this an official Ministry of Interior service?</span>
+            <span class="ar-ui mt-0.5 block text-[13px] text-slate-600" dir="rtl" lang="ar">هل هذه خدمة رسمية؟</span>
+          </span>
+          <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
+        </summary>
+        <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          No. It is a demonstration prototype built for layout review and flow testing. It is not connected to any
+          government system, and the emblem, the seal, the barcode, the QR block and the MRZ lines are labelled
+          placeholders, not verifiable credentials.
+        </p>
+      </details>
+      <details class="group px-4 py-3">
+        <summary class="flex items-center justify-between gap-4">
+          <span>
+            <span class="block text-[14px] font-semibold text-ink">Where are the records stored?</span>
+            <span class="ar-ui mt-0.5 block text-[13px] text-slate-600" dir="rtl" lang="ar">أين تُحفظ السجلات؟</span>
+          </span>
+          <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
+        </summary>
+        <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          In the Supabase project connected to this build. Only demonstration records belong there: the page warns
+          against entering real passport or personal data, and anyone who holds a share link can read its record, so
+          keep every entry fake.
+        </p>
+      </details>
+      <details class="group px-4 py-3">
+        <summary class="flex items-center justify-between gap-4">
+          <span>
+            <span class="block text-[14px] font-semibold text-ink">The reference returns nothing. What now?</span>
+            <span class="ar-ui mt-0.5 block text-[13px] text-slate-600" dir="rtl" lang="ar">رقم المرجع لا يعطي نتيجة. ماذا أفعل؟</span>
+          </span>
+          <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
+        </summary>
+        <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          Retype the six characters exactly as they appear on the notification, letters included. If it still fails,
+          ask the issuing office to confirm the number. A failed check changes nothing in the register.
+        </p>
+      </details>
+      <details class="group px-4 py-3">
+        <summary class="flex items-center justify-between gap-4">
+          <span>
+            <span class="block text-[14px] font-semibold text-ink">Can I download or print the visa?</span>
+            <span class="ar-ui mt-0.5 block text-[13px] text-slate-600" dir="rtl" lang="ar">هل يمكن تنزيل التأشيرة أو طباعتها؟</span>
+          </span>
+          <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
+        </summary>
+        <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          Yes. Download image saves a PNG of the document, and Print or save as PDF opens a print view with only the
+          document on the page. Both exist so the printed layout can be reviewed, and the document itself is marked
+          as a demo either way.
+        </p>
+      </details>
+      <details class="group px-4 py-3">
+        <summary class="flex items-center justify-between gap-4">
+          <span>
+            <span class="block text-[14px] font-semibold text-ink">Does the QR code or barcode scan?</span>
+            <span class="ar-ui mt-0.5 block text-[13px] text-slate-600" dir="rtl" lang="ar">هل يعمل الرمز الشريطي أو رمز الاستجابة السريعة؟</span>
+          </span>
+          <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
+        </summary>
+        <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          No. The QR block, the barcode and the MRZ lines are drawn illustrations for the layout, and the document
+          says so on its face.
+        </p>
+      </details>
+      <details class="group px-4 py-3">
+        <summary class="flex items-center justify-between gap-4">
+          <span>
+            <span class="block text-[14px] font-semibold text-ink">Who can open the staff console?</span>
+            <span class="ar-ui mt-0.5 block text-[13px] text-slate-600" dir="rtl" lang="ar">من يستطيع فتح لوحة الموظفين؟</span>
+          </span>
+          <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
+        </summary>
+        <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          Anyone holding the passcode. It is a demo gate written in the page source, not a login, so the console suits
+          test data only.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  </div><!-- /.mx-auto max-w-5xl container -->
 </section>
 <section id="viewAdmin" class="is-hidden mx-auto max-w-5xl px-4">
   <div id="adminGate" class="mx-auto mt-8 max-w-md rounded-[6px] border border-sand-200 bg-white paper">
@@ -321,10 +579,25 @@ tailwind.config = {
           </div>
 
           <div class="sm:col-span-2">
-            <label for="fPhoto" class="block text-[13px] font-semibold text-ink">Photo URL <span class="font-normal text-slate-500">optional, leave empty for the placeholder portrait</span></label>
-            <div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
-              <input id="fPhoto" type="url" inputmode="url" placeholder="https://example.com/photo.jpg" class="h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-              <img id="photoPreview" alt="Photo preview placeholder" class="h-[64px] w-[52px] rounded-[3px] border border-sand-300 bg-sand-50 object-cover" src="">
+            <label for="fPhotoFile" class="block text-[13px] font-semibold text-ink">Photograph <span class="font-normal text-slate-500">upload a picture, or paste an image URL · empty keeps the placeholder portrait</span></label>
+            <div class="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start">
+              <img id="photoPreview" alt="Photograph preview" class="h-[92px] w-[74px] flex-none rounded-[3px] border border-sand-300 bg-sand-50 object-cover" src="">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <label for="fPhotoFile" class="inline-flex min-h-[44px] cursor-pointer items-center rounded-[4px] border border-gold-600 px-3 text-[13px] font-semibold text-gold-700 focus-within:border-navy hover:bg-sand-50">
+                    <svg viewBox="0 0 20 20" class="mr-2 h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 15.5V6.5m0 0L6.4 10.1M10 6.5l3.6 3.6M4 17h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Upload image
+                    <input id="fPhotoFile" type="file" accept="image/*" class="sr-only">
+                  </label>
+                  <button type="button" id="photoClearBtn" class="is-hidden inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-slate-600 hover:bg-white">Remove photo</button>
+                  <span id="photoMeta" class="text-[11px] text-slate-500"></span>
+                </div>
+                <label for="fPhoto" class="sr-only">Photo URL</label>
+                <input id="fPhoto" type="text" inputmode="url" autocomplete="off" placeholder="or paste an image URL, https://…" class="mt-2 h-[44px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-[13px] text-ink focus:border-navy focus:outline-none">
+                <p class="mt-1 text-[11px] leading-relaxed text-slate-500">
+                  An uploaded picture is resized to fit 720 px and stored inside the record, so the document and its share link carry it to any phone.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -847,7 +1120,7 @@ tailwind.config = {
       + '<div class="grid gap-4 p-4 sm:grid-cols-[140px_1fr] sm:gap-5 sm:p-5">'
       + '<figure class="mx-auto w-[132px] shrink-0">'
       + '<div class="relative">'
-      + '<img id="docPhoto" src="' + esc(photo) + '" alt="Applicant photograph placeholder" crossorigin="anonymous"'
+      + '<img id="docPhoto" src="' + esc(photo) + '" alt="Applicant photograph placeholder"' + (photo.indexOf('data:') === 0 ? '' : ' crossorigin="anonymous"')
       + ' class="h-[168px] w-[132px] rounded-[3px] border-2 border-gold-500 bg-sand-50 object-cover">'
       + '<div class="pointer-events-none absolute -bottom-5 -right-4 -rotate-12 opacity-80">'
       + '<div class="relative grid h-[100px] w-[100px] place-items-center rounded-full border-[3px] border-green text-green">'
@@ -1212,7 +1485,7 @@ tailwind.config = {
   }
 
   const FORM_FIELDS = ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr',
-    'fTypeEn', 'fTypeAr', 'fGender', 'fDob', 'fIssue', 'fExpiry', 'fPhoto', 'fCode', 'fValidity'];
+    'fTypeEn', 'fTypeAr', 'fGender', 'fDob', 'fIssue', 'fExpiry', 'fCode', 'fValidity'];
 
   const presetOptions = (items, label) =>
     '<option value="">' + label + '</option>' + items.map((it, i) => '<option value="' + i + '">' + esc(it.en) + '</option>').join('');
@@ -1238,7 +1511,7 @@ tailwind.config = {
       date_of_birth: $('#fDob').value || null,
       issue_date: $('#fIssue').value || todayISO(),
       expiry_date: $('#fExpiry').value || '',
-      photo_url: clean($('#fPhoto').value, 500),
+      photo_url: String(photoData || '').trim().slice(0, PHOTO_STORE_MAX),
       code: normalizeCode($('#fCode').value)
     };
   }
@@ -1271,10 +1544,85 @@ tailwind.config = {
     $('#fProfAr').value = $('#fGender').value === 'Female' ? (p.arf || p.ar) : p.ar;
   }
 
+  const PHOTO_STORE_MAX = 400000;
+
+  let photoData = '';
+
+  function setPhoto(value, keepInput) {
+    photoData = String(value == null ? '' : value).trim();
+    const urlEl = $('#fPhoto');
+    const fileEl = $('#fPhotoFile');
+    if (fileEl) fileEl.value = '';
+    if (urlEl && !keepInput) urlEl.value = photoData.indexOf('data:') === 0 ? '' : photoData;
+    const metaEl = $('#photoMeta');
+    if (metaEl) metaEl.textContent = photoData.indexOf('data:') === 0 ? 'Uploaded picture stored in this record' : '';
+    show($('#photoClearBtn'), photoData.length > 0);
+    updatePhotoPreview();
+  }
+
   function updatePhotoPreview() {
     const img = $('#photoPreview');
     img.onerror = function () { img.src = placeholderPhoto(); };
-    img.src = clean($('#fPhoto').value, 500) || placeholderPhoto();
+    img.src = photoData || placeholderPhoto();
+  }
+
+  function showFormError(message) {
+    const el = $('#formError');
+    if (!el) return;
+    el.textContent = message;
+    show(el, true);
+    try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { }
+  }
+
+  function compressImage(file, maxEdge, quality) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onerror = function () { reject(new Error('The picture could not be read from this device.')); };
+      reader.onload = function () {
+        const probe = new Image();
+        probe.onerror = function () { reject(new Error('That file is not a picture this browser can draw.')); };
+        probe.onload = function () {
+          const w = probe.naturalWidth || probe.width;
+          const h = probe.naturalHeight || probe.height;
+          if (!w || !h) { reject(new Error('The picture reports no size.')); return; }
+          const scale = Math.min(1, maxEdge / Math.max(w, h));
+          const cw = Math.max(1, Math.round(w * scale));
+          const ch = Math.max(1, Math.round(h * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = cw;
+          canvas.height = ch;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(probe, 0, 0, cw, ch);
+          let out = canvas.toDataURL('image/jpeg', quality);
+          if (out.length > PHOTO_STORE_MAX) out = canvas.toDataURL('image/jpeg', 0.6);
+          if (out.length > PHOTO_STORE_MAX) { reject(new Error('The picture is too large to store even after resizing.')); return; }
+          resolve({ dataUrl: out, width: cw, height: ch });
+        };
+        probe.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handlePhotoFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      showFormError('That file is not an image. Choose a JPG, PNG or WebP picture.');
+      return;
+    }
+    const metaEl = $('#photoMeta');
+    if (metaEl) metaEl.textContent = 'Preparing the picture…';
+    try {
+      const shot = await compressImage(file, 720, 0.82);
+      setPhoto(shot.dataUrl);
+      if (metaEl) metaEl.textContent = 'Uploaded ' + shot.width + '×' + shot.height + ' · stored in the record';
+      show($('#formError'), false);
+    } catch (e) {
+      setPhoto(photoData);
+      showFormError((e && e.message) ? e.message : 'The picture could not be prepared.');
+    }
   }
 
   function updateFormMode() {
@@ -1287,14 +1635,14 @@ tailwind.config = {
   }
 
   function clearForm() {
-    ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr', 'fTypeEn', 'fTypeAr', 'fDob', 'fPhoto', 'fCode']
+    ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr', 'fTypeEn', 'fTypeAr', 'fDob', 'fCode']
       .forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
     ['fNatPreset', 'fProfPreset', 'fTypePreset'].forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
     $('#fGender').value = 'Male';
     $('#fIssue').value = todayISO();
     $('#fValidity').value = '90';
     applyValidity();
-    updatePhotoPreview();
+    setPhoto('');
     show($('#formError'), false);
     state.editingId = null;
     updateFormMode();
@@ -1348,9 +1696,8 @@ tailwind.config = {
     $('#fDob').value = rec.date_of_birth || '';
     $('#fIssue').value = rec.issue_date || '';
     $('#fExpiry').value = rec.expiry_date || '';
-    $('#fPhoto').value = rec.photo_url || '';
+    setPhoto(rec.photo_url || '');
     $('#fCode').value = rec.code || '';
-    updatePhotoPreview();
     updateFormMode();
     saveDraft();
     toast('Editing reference ' + rec.code + '. Save changes to publish them.');
@@ -1600,7 +1947,13 @@ tailwind.config = {
     $('#fIssue').addEventListener('change', function () { applyValidity(); scheduleDraft(); });
     $('#fValidity').addEventListener('change', function () { applyValidity(); scheduleDraft(); });
     $('#fGender').addEventListener('change', function () { syncProfessionAr(); scheduleDraft(); });
-    $('#fPhoto').addEventListener('input', function () { updatePhotoPreview(); scheduleDraft(); });
+    $('#fPhoto').addEventListener('input', function () { setPhoto(this.value.trim(), true); scheduleDraft(); });
+    $('#fPhotoFile').addEventListener('change', function () { handlePhotoFile(this.files && this.files[0]); });
+    $('#photoClearBtn').addEventListener('click', function () {
+      setPhoto('');
+      show($('#formError'), false);
+      toast('Photo removed from the form.');
+    });
     $('#searchInput').addEventListener('input', renderList);
 
     $('#fNatPreset').addEventListener('change', function () {
