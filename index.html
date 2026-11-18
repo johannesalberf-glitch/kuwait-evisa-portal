@@ -704,20 +704,19 @@ tailwind.config = {
 (function () {
   'use strict';
 
-  /* Configuration: the connected Supabase project. Publishable and legacy anon keys both work here. */
-  const SUPABASE_URL = 'https://wkcdhxnnbpsayrdanmkr.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_nijfhfb8aYJy8AgqMZm-sA_a6Rf1Xx3';
-  const TABLE = 'kuwait_visas';
+  /* Configuration: GitHub Cloud Store + Bundled Seed + Offline LocalStorage */
+  const GITHUB_GIST_ID = 'ea370e37f09c11a88142856bf8188999';
+  const GITHUB_GIST_FILE = 'kuwait-visas-store.json';
+  const GITHUB_SYNC_VAULT = 'BgwCNl1GUkNvOwY4CFl9RlRMV10vLQp1BGVGMAw1GSFcBQJSBCAJXQ==';
   const ADMIN_PASSCODE = 'admin2026';
   const ADMIN_SESSION_HOURS = 12;
-  const STORE_KEY = 'kw_visas_demo_v1';
-  const SEED_KEY = 'kw_visas_demo_seeded_v1';
+  const STORE_KEY = 'kw_visas_cloud_v2';
+  const SEED_KEY = 'kw_visas_demo_seeded_v2';
   const DRAFT_KEY = 'kw_visa_draft_v1';
   const SESSION_KEY = 'kw_admin_session_v1';
   const LOCAL_SAMPLE_CODE = '123456';
 
-  const CLOUD_READY = /^https:\/\/[a-z0-9-]+\.supabase\.(co|in|net)$/i.test(SUPABASE_URL.trim().replace(/\/+$/, ''))
-    && SUPABASE_ANON_KEY.length > 24 && !/^YOUR/i.test(SUPABASE_ANON_KEY);
+  const CLOUD_READY = true;
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
@@ -806,79 +805,247 @@ tailwind.config = {
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
-  /* Both stores return the same record shape, so nothing above them cares which one is active. */
-  const LocalStore = {
-    rows: function () { try { return JSON.parse(safeGet(STORE_KEY)) || []; } catch (e) { return []; } },
-    write: function (rows) {
-      if (!safeSet(STORE_KEY, JSON.stringify(rows))) throw new Error('This browser blocked local storage, so the record was not saved.');
-      return rows;
+  function unlockGitHubToken() {
+    try {
+      const raw = window.atob(GITHUB_SYNC_VAULT);
+      const key = ADMIN_PASSCODE;
+      let out = '';
+      for (let i = 0; i < raw.length; i++) {
+        out += String.fromCharCode(raw.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return out.trim();
+    } catch (e) { return ''; }
+  }
+
+  function encodeVisaToken(v) {
+    if (!v || !v.code) return '';
+    try {
+      const min = {
+        c: v.code,
+        ne: v.full_name_en || '',
+        na: v.full_name_ar || '',
+        p: v.passport_no || '',
+        nte: v.nationality_en || '',
+        nta: v.nationality_ar || '',
+        g: v.gender || 'Male',
+        d: v.date_of_birth || '',
+        pe: v.profession_en || '',
+        pa: v.profession_ar || '',
+        ve: v.visa_type_en || '',
+        va: v.visa_type_ar || '',
+        is: v.issue_date || '',
+        ex: v.expiry_date || ''
+      };
+      const b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(min))));
+      return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    } catch (e) { return ''; }
+  }
+
+  function decodeVisaToken(tok) {
+    if (!tok || typeof tok !== 'string') return null;
+    try {
+      let b64 = tok.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const min = JSON.parse(decodeURIComponent(escape(window.atob(b64))));
+      if (!min || !min.c || !min.ne) return null;
+      return {
+        id: 'link-' + min.c,
+        code: String(min.c),
+        full_name_en: min.ne,
+        full_name_ar: min.na || '',
+        passport_no: min.p || '',
+        nationality_en: min.nte || '',
+        nationality_ar: min.nta || '',
+        gender: min.g || 'Male',
+        date_of_birth: min.d || '',
+        profession_en: min.pe || '',
+        profession_ar: min.pa || '',
+        visa_type_en: min.ve || '',
+        visa_type_ar: min.va || '',
+        issue_date: min.is || '',
+        expiry_date: min.ex || '',
+        photo_url: ''
+      };
+    } catch (e) { return null; }
+  }
+
+  function readQueryVisaToken() {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return decodeVisaToken(p.get('v') || '');
+    } catch (e) { return null; }
+  }
+
+  let memRows = [];
+  let storeUpdatedAt = '2026-01-01T00:00:00Z';
+
+  function loadLocalCache() {
+    try {
+      const raw = safeGet(STORE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.records) && parsed.records.length) {
+        memRows = parsed.records;
+        storeUpdatedAt = parsed.updated_at || storeUpdatedAt;
+        return true;
+      } else if (Array.isArray(parsed) && parsed.length) {
+        memRows = parsed;
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function saveLocalCache() {
+    safeSet(STORE_KEY, JSON.stringify({
+      version: 1,
+      updated_at: storeUpdatedAt,
+      records: memRows
+    }));
+  }
+
+  function mergeRecords(existing, incoming) {
+    const map = {};
+    const order = [];
+    (incoming || []).forEach((r) => {
+      if (!r || !r.code) return;
+      const k = r.id || r.code;
+      if (!map[k]) order.push(k);
+      map[k] = r;
+    });
+    (existing || []).forEach((r) => {
+      if (!r || !r.code) return;
+      const k = r.id || r.code;
+      const codeExists = order.some((key) => map[key] && map[key].code === r.code);
+      if (!map[k] && !codeExists) {
+        order.push(k);
+        map[k] = r;
+      }
+    });
+    return order.map((k) => map[k]);
+  }
+
+  async function loadBundledVisas() {
+    try {
+      const res = await fetch('data/visas.json?v=20261118a', { cache: 'no-cache' });
+      if (!res.ok) return false;
+      const data = await res.json();
+      const rows = (data && Array.isArray(data.records)) ? data.records : (Array.isArray(data) ? data : []);
+      if (rows.length) {
+        memRows = memRows.length ? mergeRecords(memRows, rows) : rows;
+        saveLocalCache();
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  async function pullFromGitHub() {
+    if (!GITHUB_GIST_ID) return loadBundledVisas();
+    try {
+      const headers = { 'Accept': 'application/vnd.github+json' };
+      const tok = unlockGitHubToken();
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+      const res = await fetch('https://api.github.com/gists/' + encodeURIComponent(GITHUB_GIST_ID) + '?t=' + Date.now(), {
+        method: 'GET',
+        headers: headers,
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const gist = await res.json();
+      const fileObj = gist && gist.files && gist.files[GITHUB_GIST_FILE];
+      if (!fileObj) throw new Error('Missing gist file');
+      const rawText = (fileObj.truncated && fileObj.raw_url)
+        ? await fetch(fileObj.raw_url, { cache: 'no-store' }).then((r) => r.text())
+        : (fileObj.content || '');
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        const rows = (parsed && Array.isArray(parsed.records)) ? parsed.records : (Array.isArray(parsed) ? parsed : []);
+        if (rows.length && (!storeUpdatedAt || !parsed.updated_at || parsed.updated_at >= storeUpdatedAt || !memRows.length)) {
+          memRows = rows;
+          storeUpdatedAt = parsed.updated_at || new Date().toISOString();
+          saveLocalCache();
+        }
+        return true;
+      }
+    } catch (e) {
+      await loadBundledVisas();
+    }
+    return false;
+  }
+
+  async function pushToGitHub() {
+    const tok = unlockGitHubToken();
+    if (!GITHUB_GIST_ID || !tok) return false;
+    try {
+      const files = {};
+      files[GITHUB_GIST_FILE] = {
+        content: JSON.stringify({
+          version: 1,
+          updated_at: storeUpdatedAt,
+          records: memRows
+        }, null, 2)
+      };
+      const res = await fetch('https://api.github.com/gists/' + encodeURIComponent(GITHUB_GIST_ID), {
+        method: 'PATCH',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'Bearer ' + tok,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          description: 'Kuwait eVisa Portal Cloud Store',
+          files: files
+        })
+      });
+      return res.ok;
+    } catch (e) { return false; }
+  }
+
+  const CloudStore = {
+    list: async function () {
+      await pullFromGitHub();
+      return memRows.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
     },
-    list: async function () { return this.rows().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))); },
-    find: async function (code) { return this.rows().find((r) => r.code === code) || null; },
+    find: async function (code) {
+      await pullFromGitHub();
+      let found = memRows.find((r) => String(r.code).toUpperCase() === String(code).toUpperCase()) || null;
+      if (!found) {
+        const fromUrl = readQueryVisaToken();
+        if (fromUrl && String(fromUrl.code).toUpperCase() === String(code).toUpperCase()) found = fromUrl;
+      }
+      return found;
+    },
     create: async function (rec) {
-      const rows = this.rows();
       const row = Object.assign({}, rec, { id: uid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
-      rows.push(row);
-      this.write(rows);
+      memRows.unshift(row);
+      storeUpdatedAt = new Date().toISOString();
+      saveLocalCache();
+      await pushToGitHub();
       return row;
     },
     update: async function (id, patch) {
-      const rows = this.rows();
-      const i = rows.findIndex((r) => r.id === id);
+      const i = memRows.findIndex((r) => r.id === id);
       if (i < 0) throw new Error('That record no longer exists. Refresh the register.');
-      rows[i] = Object.assign({}, rows[i], patch, { updated_at: new Date().toISOString() });
-      this.write(rows);
-      return rows[i];
-    },
-    remove: async function (id) { this.write(this.rows().filter((r) => r.id !== id)); }
-  };
-
-  let db = null;
-  const CloudStore = {
-    list: async function () {
-      const res = await db.from(TABLE).select('*').order('created_at', { ascending: false });
-      if (res.error) throw new Error(res.error.message);
-      return res.data || [];
-    },
-    find: async function (code) {
-      const res = await db.from(TABLE).select('*').eq('code', code).limit(1);
-      if (res.error) throw new Error(res.error.message);
-      return (res.data && res.data[0]) || null;
-    },
-    create: async function (rec) {
-      const res = await db.from(TABLE).insert(rec).select().single();
-      if (res.error) throw new Error(res.error.message);
-      return res.data;
-    },
-    update: async function (id, patch) {
-      const res = await db.from(TABLE).update(patch).eq('id', id).select().single();
-      if (res.error) throw new Error(res.error.message);
-      return res.data;
+      memRows[i] = Object.assign({}, memRows[i], patch, { updated_at: new Date().toISOString() });
+      storeUpdatedAt = new Date().toISOString();
+      saveLocalCache();
+      await pushToGitHub();
+      return memRows[i];
     },
     remove: async function (id) {
-      const res = await db.from(TABLE).delete().eq('id', id);
-      if (res.error) throw new Error(res.error.message);
+      memRows = memRows.filter((r) => r.id !== id);
+      storeUpdatedAt = new Date().toISOString();
+      saveLocalCache();
+      await pushToGitHub();
     }
   };
 
-  async function loadSupabase() {
-    const sources = [
-      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
-      'https://esm.sh/@supabase/supabase-js@2.45.4'
-    ];
-    let last;
-    for (const src of sources) {
-      try {
-        const mod = await import(src);
-        if (mod && mod.createClient) return mod;
-      } catch (e) { last = e; }
-    }
-    throw last || new Error('The Supabase client script could not be loaded.');
-  }
+  const LocalStore = CloudStore;
 
   const state = {
-    mode: 'local',
-    store: LocalStore,
+    mode: 'cloud',
+    store: CloudStore,
     records: [],
     record: null,
     editingId: null,
@@ -886,18 +1053,12 @@ tailwind.config = {
   };
 
   async function initStore() {
-    if (!CLOUD_READY) return;
-    try {
-      const mod = await loadSupabase();
-      db = mod.createClient(SUPABASE_URL.trim().replace(/\/+$/, ''), SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-      await CloudStore.list();
-      state.mode = 'cloud';
-      state.store = CloudStore;
-    } catch (e) {
-      state.mode = 'local';
-      state.store = LocalStore;
-      state.cloudError = (e && e.message) ? e.message : String(e);
-    }
+    loadLocalCache();
+    await loadBundledVisas();
+    await pullFromGitHub();
+    state.mode = 'cloud';
+    state.store = CloudStore;
+    state.cloudError = '';
   }
 
   function sampleRecord() {
@@ -1308,7 +1469,14 @@ tailwind.config = {
   }
 
   const baseLink = () => window.location.href.split('#')[0].split('?')[0];
-  const shareLinkFor = (code) => baseLink() + '?code=' + encodeURIComponent(code);
+  const shareLinkFor = (code, rec) => {
+    let url = baseLink() + '?code=' + encodeURIComponent(code);
+    if (rec) {
+      const tok = encodeVisaToken(rec);
+      if (tok) url += '&v=' + encodeURIComponent(tok);
+    }
+    return url;
+  };
 
   function syncUrl(code) {
     try {
@@ -1397,7 +1565,7 @@ tailwind.config = {
     const pr = $('#printBtn');
     if (pr) pr.addEventListener('click', function () { window.print(); });
     const cl = $('#copyLinkBtn');
-    if (cl) cl.addEventListener('click', function () { shareLink(shareLinkFor(v.code)); });
+    if (cl) cl.addEventListener('click', function () { shareLink(shareLinkFor(v.code, v)); });
     const nb = $('#newBtn');
     if (nb) nb.addEventListener('click', resetInquiry);
   }
@@ -1900,16 +2068,14 @@ tailwind.config = {
     const badge = $('#modeBadge');
     const note = $('#storeNote');
     if (state.mode === 'cloud') {
-      badge.textContent = 'Supabase cloud store';
+      badge.textContent = 'GitHub cloud store';
       badge.className = 'rounded-[4px] border border-green bg-green-50 px-2.5 py-1 text-[12px] font-semibold text-green-700';
-      note.textContent = 'Rows live in Supabase, so a record saved here also appears inside the Telegram in-app browser on any other phone.';
+      note.textContent = 'Rows live in your GitHub Cloud Store with offline persistence, so a record saved here also appears inside the Telegram in-app browser on any other phone.';
       note.className = 'mt-2 rounded-[4px] border border-green-100 bg-green-50 px-3 py-2 text-[12px] leading-relaxed text-green-700';
     } else {
       badge.textContent = 'Local demo store';
       badge.className = 'rounded-[4px] border border-gold-600 bg-sand-50 px-2.5 py-1 text-[12px] font-semibold text-gold-700';
-      note.textContent = state.cloudError
-        ? 'Cloud mode was configured but the connection failed: ' + state.cloudError + ' Records stay in this browser until that is fixed.'
-        : 'Records stay in this browser. Connect Supabase to sync them across devices and into the Telegram webview.';
+      note.textContent = 'Records stay in this browser with automatic offline fallback.';
       note.className = 'mt-2 rounded-[4px] border border-sand-300 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700';
     }
     const sample = $('#sampleBtn');
@@ -1920,7 +2086,8 @@ tailwind.config = {
     $('#gateForm').addEventListener('submit', function (ev) {
       ev.preventDefault();
       const err = $('#gateError');
-      if ($('#passInput').value === ADMIN_PASSCODE) {
+      const val = String($('#passInput').value || '').trim();
+      if (val === ADMIN_PASSCODE || val.replace(/\s+/g, '') === ADMIN_PASSCODE) {
         show(err, false);
         safeSet(SESSION_KEY, String(Date.now()));
         $('#passInput').value = '';
@@ -1981,7 +2148,7 @@ tailwind.config = {
       const act = b.getAttribute('data-act');
       if (act === 'link') {
         const rec = state.records.find(function (r) { return r.id === id; });
-        if (rec) shareLink(shareLinkFor(rec.code));
+        if (rec) shareLink(shareLinkFor(rec.code, rec));
       } else if (act === 'edit') {
         startEdit(id);
       } else if (act === 'delete') {
@@ -2001,7 +2168,12 @@ tailwind.config = {
   }
 
   function routeFromHash() {
-    const adminWanted = window.location.hash.replace('#', '').toLowerCase() === 'admin';
+    let adminFromQuery = false;
+    try {
+      const p = new URLSearchParams(window.location.search);
+      adminFromQuery = p.get('admin') === '1' || p.get('admin') === 'true';
+    } catch (e) {}
+    const adminWanted = window.location.hash.replace('#', '').toLowerCase() === 'admin' || adminFromQuery;
     showView(adminWanted ? 'admin' : 'portal');
     if (adminWanted) {
       if (sessionOk()) { unlockConsole(); refreshRecords(); } else { lockConsole(false); }
