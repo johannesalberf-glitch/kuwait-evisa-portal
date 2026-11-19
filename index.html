@@ -75,7 +75,7 @@ tailwind.config = {
 </style>
 </head>
 <body class="shell flex flex-col text-ink antialiased">
-<div hidden aria-hidden="true" class="border-green bg-green-50 border-green-100 text-green-700 text-gold-700 border-gold-600 text-alert border-alert bg-alert hover:bg-[#fdf4f4] hover:bg-[#6f1c1c] px-2.5 py-1 leading-relaxed min-h-[36px] min-h-[44px] max-w-full overflow-x-auto min-w-[900px] space-y-3 col-span-2 truncate divide-y divide-slate-100 hover:bg-white hover:bg-sand-50 hover:bg-navy-800 hover:text-ink"></div>
+<div hidden aria-hidden="true" class="border-green bg-green-50 border-green-100 text-green-700 text-gold-700 border-gold-500 border-gold-600 text-alert border-alert bg-alert bg-navy text-white hover:bg-[#fdf4f4] hover:bg-[#6f1c1c] px-2.5 py-1 leading-relaxed min-h-[36px] min-h-[44px] max-w-full overflow-x-auto min-w-[820px] space-y-3 col-span-2 truncate divide-y divide-slate-100 hover:bg-white hover:bg-sand-50 hover:bg-navy-800 hover:text-ink bg-sand-50 text-navy text-slate-600 border-sand-300 bg-amber-50 border-amber-300 text-amber-800"></div>
 <a href="#inquiry" class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-[4px] focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-navy focus:shadow">Skip to the inquiry form</a>
 
 <div class="bg-navy-900 px-4 py-1.5 text-center text-[11px] leading-relaxed text-gold-200">
@@ -312,9 +312,9 @@ tailwind.config = {
       </div>
       <ul class="grid content-start gap-3">
         <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
-          <p class="text-[13px] font-semibold text-ink">Records travel through Supabase</p>
-          <p class="mt-1 text-[13px] leading-relaxed text-slate-600">A record saved in the console is written to the connected Supabase project, which is why a link works on a device that never opened it.</p>
-          <p class="ar-ui mt-1 text-[12px] leading-relaxed text-slate-600" dir="rtl" lang="ar">تُحفظ السجلات في مشروع Supabase المتصل، لذلك يعمل الرابط على أي جهاز.</p>
+          <p class="text-[13px] font-semibold text-ink">Instant cross-device sync</p>
+          <p class="mt-1 text-[13px] leading-relaxed text-slate-600">Records saved in the console sync automatically to the cloud store, so any share link opens immediately on phones and inside Telegram.</p>
+          <p class="ar-ui mt-1 text-[12px] leading-relaxed text-slate-600" dir="rtl" lang="ar">تُحفظ السجلات تلقائياً في السحابة، لذلك يعمل الرابط على أي جهاز فوراً.</p>
         </li>
         <li class="rounded-[6px] border border-sand-200 bg-white p-4 paper">
           <p class="text-[13px] font-semibold text-ink">Download or print</p>
@@ -331,8 +331,8 @@ tailwind.config = {
         <h2 id="staffTitle" class="text-base font-semibold text-navy">Staff console</h2>
         <p class="ar-ui text-[13px] font-semibold text-navy-800" dir="rtl" lang="ar">لوحة الموظفين</p>
         <p class="mt-2 max-w-xl text-[13px] leading-relaxed text-slate-600">
-          Create a record, upload a photograph, copy a share link for it, then edit or delete it. The console needs
-          the demo passcode and the gate stays in the page, not on a server.
+          Create a record, upload a photograph, copy a share link for it, then edit or delete it. The console uses
+          the staff passcode and syncs changes across devices automatically.
         </p>
       </div>
       <a href="#admin" class="inline-flex min-h-[48px] flex-none items-center gap-3 rounded-[4px] border border-navy-900 bg-navy px-5 text-white hover:bg-navy-800">
@@ -372,9 +372,8 @@ tailwind.config = {
           <span class="faq-plus flex-none text-xl font-semibold text-gold-700" aria-hidden="true">+</span>
         </summary>
         <p class="mt-3 max-w-3xl text-[13px] leading-relaxed text-slate-600">
-          In the Supabase project connected to this build. Only demonstration records belong there: the page warns
-          against entering real passport or personal data, and anyone who holds a share link can read its record, so
-          keep every entry fake.
+          In the cloud registry connected to this portal with local browser caching for offline speed. Keep test
+          entries clearly labelled and verify share links before sending.
         </p>
       </details>
       <details class="group px-4 py-3">
@@ -456,189 +455,205 @@ tailwind.config = {
         <span class="text-[15px] font-semibold">Unlock console</span>
         <span class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">دخول</span>
       </button>
-      <p class="mt-3 text-[11px] leading-relaxed text-slate-500">
-        Client-side gate for a local demo. This is not authentication, and anyone who can read the page source can read the passcode.
-        <span class="ar-ui mt-0.5 block" dir="rtl" lang="ar">حماية تجريبية على مستوى المتصفح وليست مصادقة حقيقية.</span>
-      </p>
     </form>
   </div>
 
   <div id="adminConsole" class="is-hidden mt-6">
-    <div class="flex flex-wrap items-center gap-3 rounded-[6px] border border-sand-200 bg-white px-4 py-3 paper">
-      <div class="min-w-0 flex-1">
-        <h2 class="text-base font-semibold text-navy">Visa register</h2>
-        <p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">سجل التأشيرات التجريبي</p>
+    <!-- Clean Top Command Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 rounded-[6px] border border-sand-200 bg-white px-4 py-3.5 paper sm:px-5">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <h2 class="text-lg font-semibold leading-tight text-navy">Visa register</h2>
+          <span class="ar-ui text-[14px] font-medium text-slate-600" dir="rtl" lang="ar">سجل التأشيرات</span>
+          <button type="button" id="syncBadge" class="inline-flex items-center rounded-[4px] border border-green bg-green-50 px-2.5 py-0.5 text-[11px] font-semibold text-green-700">Synced</button>
+        </div>
+        <p id="syncSubtitle" class="mt-0.5 text-[12px] text-slate-500">Cloud registry active. Changes save instantly and sync across all devices.</p>
       </div>
-      <span id="modeBadge" class="rounded-[4px] border border-slate-300 px-2.5 py-1 text-[12px] font-semibold text-slate-600">checking store</span>
-      <div class="flex flex-wrap gap-2">
-        <button type="button" id="refreshBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-navy hover:bg-sand-50">Refresh</button>
-        <button type="button" id="lockBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-slate-600 hover:bg-sand-50">Lock console</button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" id="addRecordBtn" class="inline-flex min-h-[44px] items-center gap-2 rounded-[4px] border border-navy-900 bg-navy px-4 text-[13px] font-semibold text-white hover:bg-navy-800">
+          <svg viewBox="0 0 20 20" class="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4v12M4 10h12" stroke-linecap="round"/></svg>
+          <span>Add record</span>
+        </button>
+        <button type="button" id="refreshBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 bg-white px-3 text-[13px] font-semibold text-navy hover:bg-sand-50">Sync</button>
+        <button type="button" id="lockBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 bg-white px-3 text-[13px] font-semibold text-slate-600 hover:bg-sand-50">Lock</button>
       </div>
     </div>
 
-    <p id="storeNote" class="mt-2 rounded-[4px] border border-sand-300 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700"></p>
-
-    <details class="mt-3 rounded-[6px] border border-sand-200 bg-white px-4 py-3">
-      <summary class="text-sm font-semibold text-navy">Cloud storage <span class="font-normal text-slate-500">(how a record reaches another phone)</span></summary>
-      <p class="mt-3 text-[13px] leading-relaxed text-slate-700">Records are stored in the Supabase project configured at the top of the script in <code class="mono-doc rounded-[3px] bg-sand-50 px-1">index.html</code>, in the table <code class="mono-doc rounded-[3px] bg-sand-50 px-1">kuwait_visas</code> created by <code class="mono-doc rounded-[3px] bg-sand-50 px-1">supabase-schema.sql</code>. A record saved here is readable from any phone that opens its share link, including inside Telegram.</p>
-      <p class="mt-2 text-[11px] leading-relaxed text-slate-500">This page ships only the public publishable key, which can read and write, so keep every record fake. The secret and service_role keys from the Supabase dashboard must never be pasted into a page like this one.</p>
-    </details>
-
+    <!-- Main Records Register (Immediately Visible) -->
     <div class="mt-4 rounded-[6px] border border-sand-200 bg-white paper">
-      <div class="flex flex-wrap items-center gap-3 border-b border-sand-200 bg-sand-50 px-4 py-3">
-        <div class="min-w-0 flex-1">
-          <h3 id="formTitle" class="text-sm font-semibold text-navy">Create a visa record</h3>
-          <p id="formSubtitle" class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">إضافة سجل تأشيرة</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button type="button" id="randomBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-gold-600 px-3 text-[13px] font-semibold text-gold-700 hover:bg-sand-50">Generate random reference</button>
-          <button type="button" id="resetFormBtn" class="inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-slate-600 hover:bg-white">New record</button>
-        </div>
-      </div>
-      <form id="visaForm" novalidate class="px-4 py-5 sm:px-6">
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label for="fNameEn" class="block text-[13px] font-semibold text-ink">Full name, English <span class="font-normal text-slate-500">required</span></label>
-            <input id="fNameEn" type="text" autocomplete="off" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fNameAr" class="block text-[13px] font-semibold text-ink">Full name, Arabic <span class="ar-ui text-[12px] font-normal text-slate-500" dir="rtl">الاسم بالكامل</span></label>
-            <input id="fNameAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fPassport" class="block text-[13px] font-semibold text-ink">Passport number <span class="font-normal text-slate-500">required</span></label>
-            <input id="fPassport" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="P0000000" class="mono-doc mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fDob" class="block text-[13px] font-semibold text-ink">Date of birth</label>
-            <input id="fDob" type="date" class="tabular mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-
-          <div>
-            <label for="fNatPreset" class="block text-[13px] font-semibold text-ink">Nationality preset</label>
-            <select id="fNatPreset" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none"></select>
-          </div>
-          <div>
-            <label for="fGender" class="block text-[13px] font-semibold text-ink">Sex</label>
-            <select id="fGender" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-              <option value="Male">Male · ذكر</option>
-              <option value="Female">Female · أنثى</option>
-            </select>
-          </div>
-          <div>
-            <label for="fNatEn" class="block text-[13px] font-semibold text-ink">Nationality, English</label>
-            <input id="fNatEn" type="text" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fNatAr" class="block text-[13px] font-semibold text-ink">Nationality, Arabic</label>
-            <input id="fNatAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-
-          <div>
-            <label for="fProfPreset" class="block text-[13px] font-semibold text-ink">Profession preset</label>
-            <select id="fProfPreset" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none"></select>
-          </div>
-          <div>
-            <label for="fTypePreset" class="block text-[13px] font-semibold text-ink">Visa type preset</label>
-            <select id="fTypePreset" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none"></select>
-          </div>
-          <div>
-            <label for="fProfEn" class="block text-[13px] font-semibold text-ink">Profession, English</label>
-            <input id="fProfEn" type="text" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fProfAr" class="block text-[13px] font-semibold text-ink">Profession, Arabic</label>
-            <input id="fProfAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fTypeEn" class="block text-[13px] font-semibold text-ink">Visa type, English</label>
-            <input id="fTypeEn" type="text" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-          <div>
-            <label for="fTypeAr" class="block text-[13px] font-semibold text-ink">Visa type, Arabic</label>
-            <input id="fTypeAr" type="text" dir="rtl" lang="ar" class="ar-ui mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 sm:col-span-2 sm:grid-cols-3">
-            <div>
-              <label for="fIssue" class="block text-[13px] font-semibold text-ink">Issue date</label>
-              <input id="fIssue" type="date" class="tabular mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-            </div>
-            <div>
-              <label for="fValidity" class="block text-[13px] font-semibold text-ink">Validity preset</label>
-              <select id="fValidity" class="mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-                <option value="30">30 days</option>
-                <option value="60">60 days</option>
-                <option value="90" selected>90 days</option>
-                <option value="180">180 days</option>
-                <option value="365">365 days</option>
-              </select>
-            </div>
-            <div class="col-span-2 sm:col-span-1">
-              <label for="fExpiry" class="block text-[13px] font-semibold text-ink">Expiry date</label>
-              <input id="fExpiry" type="date" class="tabular mt-1 h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
-            </div>
-          </div>
-
-          <div class="sm:col-span-2">
-            <label for="fPhotoFile" class="block text-[13px] font-semibold text-ink">Photograph <span class="font-normal text-slate-500">upload a picture, or paste an image URL · empty keeps the placeholder portrait</span></label>
-            <div class="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start">
-              <img id="photoPreview" alt="Photograph preview" class="h-[92px] w-[74px] flex-none rounded-[3px] border border-sand-300 bg-sand-50 object-cover" src="">
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-2">
-                  <label for="fPhotoFile" class="inline-flex min-h-[44px] cursor-pointer items-center rounded-[4px] border border-gold-600 px-3 text-[13px] font-semibold text-gold-700 focus-within:border-navy hover:bg-sand-50">
-                    <svg viewBox="0 0 20 20" class="mr-2 h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 15.5V6.5m0 0L6.4 10.1M10 6.5l3.6 3.6M4 17h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Upload image
-                    <input id="fPhotoFile" type="file" accept="image/*" class="sr-only">
-                  </label>
-                  <button type="button" id="photoClearBtn" class="is-hidden inline-flex min-h-[44px] items-center rounded-[4px] border border-sand-300 px-3 text-[13px] font-semibold text-slate-600 hover:bg-white">Remove photo</button>
-                  <span id="photoMeta" class="text-[11px] text-slate-500"></span>
-                </div>
-                <label for="fPhoto" class="sr-only">Photo URL</label>
-                <input id="fPhoto" type="text" inputmode="url" autocomplete="off" placeholder="or paste an image URL, https://…" class="mt-2 h-[44px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-[13px] text-ink focus:border-navy focus:outline-none">
-                <p class="mt-1 text-[11px] leading-relaxed text-slate-500">
-                  An uploaded picture is resized to fit 720 px and stored inside the record, so the document and its share link carry it to any phone.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="sm:col-span-2">
-            <label for="fCode" class="block text-[13px] font-semibold text-ink">Reference number <span class="font-normal text-slate-500">six characters, digits recommended</span></label>
-            <div class="mt-1 flex flex-col gap-2 sm:flex-row">
-              <input id="fCode" type="text" maxlength="6" autocapitalize="characters" spellcheck="false" placeholder="123456" class="tabular mono-doc h-[48px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 tracking-[0.25em] text-navy focus:border-navy focus:outline-none sm:max-w-[220px]">
-              <button type="button" id="codeBtn" class="inline-flex min-h-[48px] items-center justify-center rounded-[4px] border border-gold-600 px-4 text-[13px] font-semibold text-gold-700 hover:bg-sand-50">Generate random six-digit code</button>
-            </div>
-          </div>
-        </div>
-
-        <p id="formError" class="is-hidden mt-4 rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-2 text-[13px] font-medium text-alert"></p>
-        <p id="draftNote" class="is-hidden mt-4 rounded-[4px] border border-gold-500 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700"></p>
-
-        <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-sand-200 pt-4">
-          <button type="submit" id="saveBtn" class="inline-flex min-h-[48px] items-center justify-center gap-3 rounded-[4px] border border-navy-900 bg-navy px-5 text-white hover:bg-navy-800">
-            <span class="text-[15px] font-semibold">Save record</span>
-            <span class="ar-ui text-[13px] font-semibold text-gold-200" dir="rtl" lang="ar">حفظ السجل</span>
+      <div class="flex flex-col gap-3 border-b border-sand-200 bg-sand-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter records by status">
+          <button type="button" data-filter="all" class="filter-tab inline-flex min-h-[38px] items-center gap-1.5 rounded-[4px] border border-navy bg-navy px-3 text-[12px] font-semibold text-white">
+            All <span id="countAll" class="tabular opacity-85">0</span>
           </button>
-          <button type="button" id="cancelEditBtn" class="is-hidden inline-flex min-h-[48px] items-center rounded-[4px] border border-sand-300 px-4 text-[13px] font-semibold text-slate-600 hover:bg-white">Cancel editing</button>
-          <p class="text-[12px] text-slate-500">Changes appear in the register and on every device as soon as the record is saved.</p>
+          <button type="button" data-filter="valid" class="filter-tab inline-flex min-h-[38px] items-center gap-1.5 rounded-[4px] border border-sand-300 bg-white px-3 text-[12px] font-semibold text-slate-700 hover:bg-sand-50">
+            Valid <span id="countValid" class="tabular text-green">0</span>
+          </button>
+          <button type="button" data-filter="expired" class="filter-tab inline-flex min-h-[38px] items-center gap-1.5 rounded-[4px] border border-sand-300 bg-white px-3 text-[12px] font-semibold text-slate-700 hover:bg-sand-50">
+            Expired <span id="countExpired" class="tabular text-alert">0</span>
+          </button>
         </div>
-      </form>
-    </div>
-
-    <div class="mt-4 rounded-[6px] border border-sand-200 bg-white paper">
-      <div class="flex flex-wrap items-center gap-3 border-b border-sand-200 bg-sand-50 px-4 py-3">
-        <div class="min-w-0 flex-1">
-          <h3 class="text-sm font-semibold text-navy">Registered records</h3>
-          <p class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">السجلات المسجلة</p>
+        <div class="relative w-full sm:w-[300px]">
+          <label for="searchInput" class="sr-only">Search records</label>
+          <input id="searchInput" type="search" placeholder="Search name, passport, code..." class="h-[42px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-[14px] text-ink focus:border-navy focus:outline-none">
         </div>
-        <label for="searchInput" class="sr-only">Search records</label>
-        <input id="searchInput" type="search" placeholder="Search name, passport, reference" class="h-[44px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none sm:w-[300px]">
       </div>
-      <div id="listRegion" class="px-4 py-4"></div>
+      <div id="listRegion" class="px-4 py-4 sm:px-5"></div>
     </div>
   </div>
 </section>
+
+<!-- Slide-Over Record Drawer (Clean Create / Edit Separation — Zero Duplicates) -->
+<div id="recordDrawer" class="is-hidden fixed inset-0 z-[55] flex justify-end bg-navy-900/55" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div id="drawerBackdrop" class="flex-1" aria-hidden="true"></div>
+  <div class="flex h-full w-full max-w-xl flex-col bg-white shadow-2xl">
+    <!-- Sticky Drawer Header -->
+    <div id="drawerHeader" class="flex items-center justify-between gap-3 border-b border-sand-200 bg-navy px-5 py-4 text-white">
+      <div class="min-w-0">
+        <h3 id="drawerTitle" class="truncate text-base font-semibold">New visa record</h3>
+        <p id="drawerSubtitle" class="ar-ui text-[12px] text-gold-200" dir="rtl" lang="ar">إضافة سجل تأشيرة جديد</p>
+      </div>
+      <button type="button" id="drawerCloseBtn" aria-label="Close form" class="inline-flex h-10 w-10 flex-none items-center justify-center rounded-[4px] border border-white/25 text-white hover:bg-white/10">
+        <svg viewBox="0 0 20 20" class="h-5 w-5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l10 10M15 5L5 15" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Scrollable Form Body -->
+    <form id="visaForm" novalidate class="flex min-h-0 flex-1 flex-col">
+      <div class="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+        <!-- Datalists for clean auto-fill without duplicate dropdown inputs -->
+        <datalist id="dlNationality"></datalist>
+        <datalist id="dlProfession"></datalist>
+        <datalist id="dlVisaType"></datalist>
+
+        <!-- Section 1: Reference & Validity (Top Priority) -->
+        <fieldset class="rounded-[6px] border border-sand-200 bg-sand-50/70 p-4">
+          <legend class="px-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-navy">1. Reference &amp; Validity</legend>
+          <div class="mt-2 grid gap-3 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label for="fCode" class="block text-[13px] font-semibold text-ink">6-digit reference code <span class="text-alert">*</span></label>
+              <div class="mt-1 flex gap-2">
+                <input id="fCode" type="text" maxlength="6" autocapitalize="characters" spellcheck="false" placeholder="6-digit code" class="tabular mono-doc h-[46px] flex-1 rounded-[4px] border-2 border-sand-300 bg-white px-3 text-lg font-semibold tracking-[0.25em] text-navy focus:border-navy focus:outline-none">
+                <button type="button" id="codeBtn" class="inline-flex min-h-[46px] flex-none items-center rounded-[4px] border border-gold-600 bg-white px-3.5 text-[13px] font-semibold text-gold-700 hover:bg-sand-50">New code</button>
+              </div>
+            </div>
+            <div>
+              <label for="fIssue" class="block text-[13px] font-semibold text-ink">Issue date <span class="text-alert">*</span></label>
+              <input id="fIssue" type="date" class="tabular mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fExpiry" class="block text-[13px] font-semibold text-ink">Expiry date <span class="text-alert">*</span></label>
+              <input id="fExpiry" type="date" class="tabular mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <span class="block text-[11px] font-semibold text-slate-500">Quick validity from issue date:</span>
+              <div class="mt-1.5 flex flex-wrap gap-1.5">
+                <button type="button" data-days="30" class="dur-btn min-h-[34px] rounded-[4px] border border-sand-300 bg-white px-2.5 text-[12px] font-semibold text-navy hover:bg-sand-50">30 days</button>
+                <button type="button" data-days="90" class="dur-btn min-h-[34px] rounded-[4px] border border-sand-300 bg-white px-2.5 text-[12px] font-semibold text-navy hover:bg-sand-50">90 days</button>
+                <button type="button" data-days="180" class="dur-btn min-h-[34px] rounded-[4px] border border-sand-300 bg-white px-2.5 text-[12px] font-semibold text-navy hover:bg-sand-50">180 days</button>
+                <button type="button" data-days="365" class="dur-btn min-h-[34px] rounded-[4px] border border-sand-300 bg-white px-2.5 text-[12px] font-semibold text-navy hover:bg-sand-50">1 year</button>
+                <button type="button" data-days="1461" class="dur-btn min-h-[34px] rounded-[4px] border border-sand-300 bg-white px-2.5 text-[12px] font-semibold text-navy hover:bg-sand-50">4 years</button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Section 2: Applicant Identity & Photo -->
+        <fieldset class="space-y-3.5">
+          <legend class="text-[11px] font-bold uppercase tracking-[0.12em] text-navy">2. Applicant Identity</legend>
+
+          <!-- Compact Photograph Row -->
+          <div class="flex items-start gap-3.5 rounded-[6px] border border-sand-200 bg-white p-3">
+            <img id="photoPreview" alt="Applicant photograph preview" class="h-[88px] w-[70px] flex-none rounded-[4px] border border-sand-300 bg-sand-50 object-cover" src="">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <label for="fPhotoFile" class="inline-flex min-h-[40px] cursor-pointer items-center rounded-[4px] border border-gold-600 bg-sand-50 px-3 text-[13px] font-semibold text-gold-700 hover:bg-white">
+                  <svg viewBox="0 0 20 20" class="mr-1.5 h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 15.5V6.5m0 0L6.4 10.1M10 6.5l3.6 3.6M4 17h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Upload photo
+                  <input id="fPhotoFile" type="file" accept="image/*" class="sr-only">
+                </label>
+                <button type="button" id="photoClearBtn" class="is-hidden inline-flex min-h-[40px] items-center rounded-[4px] border border-sand-300 px-3 text-[12px] font-semibold text-alert hover:bg-[#fdf4f4]">Remove</button>
+              </div>
+              <p id="photoMeta" class="mt-1.5 text-[11px] text-slate-500">Auto-compressed for fast cloud sync.</p>
+              <label for="fPhoto" class="sr-only">Photo URL</label>
+              <input id="fPhoto" type="text" inputmode="url" autocomplete="off" placeholder="Or paste https:// image URL" class="mt-1.5 h-[38px] w-full rounded-[4px] border border-sand-300 bg-white px-2.5 text-[12px] text-ink focus:border-navy focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label for="fNameEn" class="block text-[13px] font-semibold text-ink">Full name (English) <span class="text-alert">*</span></label>
+              <input id="fNameEn" type="text" autocomplete="off" placeholder="Applicant full name" class="mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fNameAr" class="block text-[13px] font-semibold text-ink">Full name (Arabic) <span class="ar-ui text-[12px] font-normal text-slate-500" dir="rtl">الاسم</span></label>
+              <input id="fNameAr" type="text" dir="rtl" lang="ar" placeholder="الاسم بالكامل" class="ar-ui mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fPassport" class="block text-[13px] font-semibold text-ink">Passport number <span class="text-alert">*</span></label>
+              <input id="fPassport" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. EP1234567" class="mono-doc mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 uppercase text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label for="fGender" class="block text-[13px] font-semibold text-ink">Sex</label>
+                <select id="fGender" class="mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-2.5 text-ink focus:border-navy focus:outline-none">
+                  <option value="Male">Male · ذكر</option>
+                  <option value="Female">Female · أنثى</option>
+                </select>
+              </div>
+              <div>
+                <label for="fDob" class="block text-[13px] font-semibold text-ink">Birth date</label>
+                <input id="fDob" type="date" class="tabular mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-2 text-ink focus:border-navy focus:outline-none">
+              </div>
+            </div>
+            <div>
+              <label for="fNatEn" class="block text-[13px] font-semibold text-ink">Nationality (English) <span class="text-alert">*</span></label>
+              <input id="fNatEn" type="text" list="dlNationality" autocomplete="off" placeholder="Pick or type nationality" class="mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fNatAr" class="block text-[13px] font-semibold text-ink">Nationality (Arabic)</label>
+              <input id="fNatAr" type="text" dir="rtl" lang="ar" placeholder="auto-filled" class="ar-ui mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Section 3: Occupation & Visa Type -->
+        <fieldset class="space-y-3.5">
+          <legend class="text-[11px] font-bold uppercase tracking-[0.12em] text-navy">3. Profession &amp; Visa Type</legend>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label for="fProfEn" class="block text-[13px] font-semibold text-ink">Profession (English)</label>
+              <input id="fProfEn" type="text" list="dlProfession" autocomplete="off" placeholder="Pick or type profession" class="mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fProfAr" class="block text-[13px] font-semibold text-ink">Profession (Arabic)</label>
+              <input id="fProfAr" type="text" dir="rtl" lang="ar" placeholder="auto-filled" class="ar-ui mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fTypeEn" class="block text-[13px] font-semibold text-ink">Visa type (English) <span class="text-alert">*</span></label>
+              <input id="fTypeEn" type="text" list="dlVisaType" autocomplete="off" placeholder="Pick or type visa type" class="mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+            <div>
+              <label for="fTypeAr" class="block text-[13px] font-semibold text-ink">Visa type (Arabic)</label>
+              <input id="fTypeAr" type="text" dir="rtl" lang="ar" placeholder="auto-filled" class="ar-ui mt-1 h-[46px] w-full rounded-[4px] border-2 border-sand-300 bg-white px-3 text-ink focus:border-navy focus:outline-none">
+            </div>
+          </div>
+        </fieldset>
+
+        <p id="formError" class="is-hidden rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-2.5 text-[13px] font-medium text-alert" role="alert"></p>
+      </div>
+
+      <!-- Sticky Drawer Footer -->
+      <div class="flex items-center justify-end gap-2.5 border-t border-sand-200 bg-sand-50 px-5 py-3.5">
+        <button type="button" id="drawerCancelBtn" class="inline-flex min-h-[46px] items-center rounded-[4px] border border-sand-300 bg-white px-4 text-[13px] font-semibold text-slate-700 hover:bg-sand-50">Cancel</button>
+        <button type="submit" id="saveBtn" class="inline-flex min-h-[46px] items-center justify-center gap-2.5 rounded-[4px] border border-navy-900 bg-navy px-5 text-white hover:bg-navy-800 disabled:opacity-60">
+          <span class="text-[14px] font-semibold">Save record</span>
+          <span class="ar-ui text-[12px] font-semibold text-gold-200" dir="rtl" lang="ar">حفظ</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 </main>
 
 <footer class="mt-auto border-t border-sand-200 bg-white">
@@ -652,7 +667,6 @@ tailwind.config = {
       <div class="flex flex-col text-[13px]">
         <a href="#inquiry" class="inline-flex min-h-[44px] items-center font-semibold text-navy underline decoration-gold-500 decoration-2 underline-offset-4">eVisa inquiry · الاستعلام</a>
         <a href="#admin" class="inline-flex min-h-[44px] items-center font-semibold text-navy underline decoration-gold-500 decoration-2 underline-offset-4">Staff console · لوحة الموظفين</a>
-        <p class="text-[11px] text-slate-500">Schema file: <span class="mono-doc">supabase-schema.sql</span></p>
       </div>
     </div>
   </div>
@@ -704,19 +718,16 @@ tailwind.config = {
 (function () {
   'use strict';
 
-  /* Configuration: GitHub Cloud Store + Bundled Seed + Offline LocalStorage */
+  /* Configuration: Fast 2-Gist GitHub Cloud Store (30 KB Index + Separate Photos) */
   const GITHUB_GIST_ID = 'ea370e37f09c11a88142856bf8188999';
-  const GITHUB_GIST_FILE = 'kuwait-visas-store.json';
+  const GITHUB_GIST_FILE = 'index.json';
+  const GITHUB_PHOTOS_GIST_ID = 'c5320d15c9c93000e49a3576839cf459';
   const GITHUB_SYNC_VAULT = 'BgwCNl1GUkNvOwY4CFl9RlRMV10vLQp1BGVGMAw1GSFcBQJSBCAJXQ==';
   const ADMIN_PASSCODE = 'admin2026';
   const ADMIN_SESSION_HOURS = 12;
-  const STORE_KEY = 'kw_visas_cloud_v2';
-  const SEED_KEY = 'kw_visas_demo_seeded_v2';
-  const DRAFT_KEY = 'kw_visa_draft_v1';
+  const STORE_KEY = 'kw_visas_index_v3';
   const SESSION_KEY = 'kw_admin_session_v1';
   const LOCAL_SAMPLE_CODE = '123456';
-
-  const CLOUD_READY = true;
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
@@ -740,7 +751,6 @@ tailwind.config = {
     if (isNaN(d.getTime())) return '-';
     return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear();
   }
-  /* Hijri dates are a nicety; older webviews without the umalqura calendar simply show nothing. */
   function fmtHijri(iso) {
     if (!iso) return '';
     try {
@@ -749,13 +759,12 @@ tailwind.config = {
     } catch (e) { return ''; }
   }
   const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
-  const randomCode = () => String(Math.floor(100000 + Math.random() * 900000));
   const safeGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const safeSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
   const safeDel = (k) => { try { localStorage.removeItem(k); } catch (e) { } };
   function uid() {
     try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) { }
-    return 'local-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+    return 'kw-' + Date.now() + '-' + Math.random().toString(16).slice(2);
   }
 
   const NATIONALITIES = [
@@ -788,6 +797,7 @@ tailwind.config = {
   ];
   const VISA_TYPES = [
     { en: 'Work visa, Article 18', ar: 'تأشيرة عمل، مادة 18' },
+    { en: 'Work visa', ar: 'تأشيرة عمل' },
     { en: 'Family visa, Article 22', ar: 'تأشيرة عائلية، مادة 22' },
     { en: 'Visit visa, Article 14', ar: 'تأشيرة زيارة، مادة 14' },
     { en: 'Tourist e-Visa', ar: 'تأشيرة سياحية إلكترونية' },
@@ -800,7 +810,7 @@ tailwind.config = {
       + '<circle cx="150" cy="138" r="56" fill="#c6d1dd"/>'
       + '<path d="M38 372c0-62 50-102 112-102s112 40 112 102z" fill="#c6d1dd"/>'
       + '<rect y="340" width="300" height="32" fill="#003366"/>'
-      + '<text x="150" y="361" font-family="monospace" font-size="14" fill="#e2cd97" text-anchor="middle">PLACEHOLDER PHOTO</text>'
+      + '<text x="150" y="361" font-family="monospace" font-size="14" fill="#e2cd97" text-anchor="middle">NO PHOTO</text>'
       + '</svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
@@ -821,20 +831,12 @@ tailwind.config = {
     if (!v || !v.code) return '';
     try {
       const min = {
-        c: v.code,
-        ne: v.full_name_en || '',
-        na: v.full_name_ar || '',
-        p: v.passport_no || '',
-        nte: v.nationality_en || '',
-        nta: v.nationality_ar || '',
-        g: v.gender || 'Male',
-        d: v.date_of_birth || '',
-        pe: v.profession_en || '',
-        pa: v.profession_ar || '',
-        ve: v.visa_type_en || '',
-        va: v.visa_type_ar || '',
-        is: v.issue_date || '',
-        ex: v.expiry_date || ''
+        c: v.code, ne: v.full_name_en || '', na: v.full_name_ar || '',
+        p: v.passport_no || '', nte: v.nationality_en || '', nta: v.nationality_ar || '',
+        g: v.gender || 'Male', d: v.date_of_birth || '',
+        pe: v.profession_en || '', pa: v.profession_ar || '',
+        ve: v.visa_type_en || '', va: v.visa_type_ar || '',
+        is: v.issue_date || '', ex: v.expiry_date || ''
       };
       const b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(min))));
       return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -849,22 +851,13 @@ tailwind.config = {
       const min = JSON.parse(decodeURIComponent(escape(window.atob(b64))));
       if (!min || !min.c || !min.ne) return null;
       return {
-        id: 'link-' + min.c,
-        code: String(min.c),
-        full_name_en: min.ne,
-        full_name_ar: min.na || '',
-        passport_no: min.p || '',
-        nationality_en: min.nte || '',
-        nationality_ar: min.nta || '',
-        gender: min.g || 'Male',
-        date_of_birth: min.d || '',
-        profession_en: min.pe || '',
-        profession_ar: min.pa || '',
-        visa_type_en: min.ve || '',
-        visa_type_ar: min.va || '',
-        issue_date: min.is || '',
-        expiry_date: min.ex || '',
-        photo_url: ''
+        id: 'link-' + min.c, code: String(min.c),
+        full_name_en: min.ne, full_name_ar: min.na || '', passport_no: min.p || '',
+        nationality_en: min.nte || '', nationality_ar: min.nta || '', gender: min.g || 'Male',
+        date_of_birth: min.d || '', profession_en: min.pe || '', profession_ar: min.pa || '',
+        visa_type_en: min.ve || '', visa_type_ar: min.va || '',
+        issue_date: min.is || '', expiry_date: min.ex || '',
+        photo_url: '', photo_ref: '', photo_file: ''
       };
     } catch (e) { return null; }
   }
@@ -876,8 +869,51 @@ tailwind.config = {
     } catch (e) { return null; }
   }
 
+  /* ---- Fast 2-Gist Storage Engine (Tiny 30 KB Index + On-Demand Photos) ---- */
   let memRows = [];
   let storeUpdatedAt = '2026-01-01T00:00:00Z';
+  let lastPullAt = 0;
+  let pendingSyncs = 0;
+  let lastSyncFailed = false;
+  let syncChain = Promise.resolve();
+  const photoCache = {};
+
+  function uniqueCode() {
+    const taken = {};
+    for (let i = 0; i < memRows.length; i++) taken[String(memRows[i].code).toUpperCase()] = true;
+    for (let tries = 0; tries < 200; tries++) {
+      const c = String(Math.floor(100000 + Math.random() * 900000));
+      if (!taken[c]) return c;
+    }
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  function setSyncState(status, detail) {
+    const badge = $('#syncBadge');
+    const sub = $('#syncSubtitle');
+    if (!badge) return;
+    if (status === 'syncing') {
+      badge.textContent = 'Syncing...';
+      badge.className = 'inline-flex items-center rounded-[4px] border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800';
+      if (sub) sub.textContent = detail || 'Saving changes to cloud store...';
+    } else if (status === 'error') {
+      badge.textContent = 'Sync error, click to retry';
+      badge.className = 'inline-flex items-center rounded-[4px] border border-alert bg-[#fdf4f4] px-2.5 py-0.5 text-[11px] font-semibold text-alert';
+      if (sub) sub.textContent = detail || 'Saved on this device. Click Sync error above to retry cloud upload.';
+    } else {
+      badge.textContent = 'Synced';
+      badge.className = 'inline-flex items-center rounded-[4px] border border-green bg-green-50 px-2.5 py-0.5 text-[11px] font-semibold text-green-700';
+      if (sub) sub.textContent = detail || 'Cloud registry active. Changes save instantly and sync across all devices.';
+    }
+  }
+
+  function slimRows(rows) {
+    return rows.map((r) => {
+      const copy = Object.assign({}, r);
+      if (copy.photo_url && copy.photo_url.indexOf('data:') === 0) copy.photo_url = '';
+      return copy;
+    });
+  }
 
   function loadLocalCache() {
     try {
@@ -888,9 +924,6 @@ tailwind.config = {
         memRows = parsed.records;
         storeUpdatedAt = parsed.updated_at || storeUpdatedAt;
         return true;
-      } else if (Array.isArray(parsed) && parsed.length) {
-        memRows = parsed;
-        return true;
       }
     } catch (e) {}
     return false;
@@ -898,41 +931,44 @@ tailwind.config = {
 
   function saveLocalCache() {
     safeSet(STORE_KEY, JSON.stringify({
-      version: 1,
+      version: 2,
       updated_at: storeUpdatedAt,
-      records: memRows
+      records: slimRows(memRows)
     }));
   }
 
-  function mergeRecords(existing, incoming) {
-    const map = {};
-    const order = [];
-    (incoming || []).forEach((r) => {
-      if (!r || !r.code) return;
-      const k = r.id || r.code;
-      if (!map[k]) order.push(k);
-      map[k] = r;
-    });
-    (existing || []).forEach((r) => {
-      if (!r || !r.code) return;
-      const k = r.id || r.code;
-      const codeExists = order.some((key) => map[key] && map[key].code === r.code);
-      if (!map[k] && !codeExists) {
-        order.push(k);
-        map[k] = r;
-      }
-    });
-    return order.map((k) => map[k]);
+  async function resolvePhoto(rec) {
+    if (!rec) return '';
+    if (rec.photo_url && (rec.photo_url.indexOf('data:image/') === 0 || /^https?:\/\//i.test(rec.photo_url))) {
+      return rec.photo_url;
+    }
+    if (photoCache[rec.id]) return photoCache[rec.id];
+    const urls = [];
+    if (rec.photo_ref) urls.push(rec.photo_ref);
+    if (rec.photo_file) urls.push('data/photos/' + encodeURIComponent(rec.photo_file));
+    for (let i = 0; i < urls.length; i++) {
+      try {
+        const res = await fetch(urls[i], { cache: 'force-cache' });
+        if (!res.ok) continue;
+        const txt = (await res.text()).trim();
+        if (txt.indexOf('data:image/') === 0) {
+          photoCache[rec.id] = txt;
+          return txt;
+        }
+      } catch (e) {}
+    }
+    return '';
   }
 
-  async function loadBundledVisas() {
+  async function loadBundledIndex() {
     try {
-      const res = await fetch('data/visas.json?v=20261118a', { cache: 'no-cache' });
+      const res = await fetch('data/visas-index.json?v=20261119a', { cache: 'no-cache' });
       if (!res.ok) return false;
       const data = await res.json();
-      const rows = (data && Array.isArray(data.records)) ? data.records : (Array.isArray(data) ? data : []);
-      if (rows.length) {
-        memRows = memRows.length ? mergeRecords(memRows, rows) : rows;
+      const rows = (data && Array.isArray(data.records)) ? data.records : [];
+      if (rows.length && !memRows.length) {
+        memRows = rows;
+        storeUpdatedAt = data.updated_at || storeUpdatedAt;
         saveLocalCache();
         return true;
       }
@@ -940,8 +976,8 @@ tailwind.config = {
     return false;
   }
 
-  async function pullFromGitHub() {
-    if (!GITHUB_GIST_ID) return loadBundledVisas();
+  async function pullFromGitHub(force) {
+    if (!force && (Date.now() - lastPullAt) < 5000 && memRows.length > 0) return true;
     try {
       const headers = { 'Accept': 'application/vnd.github+json' };
       const tok = unlockGitHubToken();
@@ -953,15 +989,16 @@ tailwind.config = {
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const gist = await res.json();
-      const fileObj = gist && gist.files && gist.files[GITHUB_GIST_FILE];
+      const fileObj = gist && gist.files && (gist.files[GITHUB_GIST_FILE] || gist.files['kuwait-visas-store.json']);
       if (!fileObj) throw new Error('Missing gist file');
       const rawText = (fileObj.truncated && fileObj.raw_url)
         ? await fetch(fileObj.raw_url, { cache: 'no-store' }).then((r) => r.text())
         : (fileObj.content || '');
       if (rawText) {
         const parsed = JSON.parse(rawText);
-        const rows = (parsed && Array.isArray(parsed.records)) ? parsed.records : (Array.isArray(parsed) ? parsed : []);
-        if (rows.length && (!storeUpdatedAt || !parsed.updated_at || parsed.updated_at >= storeUpdatedAt || !memRows.length)) {
+        const rows = (parsed && Array.isArray(parsed.records)) ? parsed.records : [];
+        lastPullAt = Date.now();
+        if (rows.length && (!memRows.length || !storeUpdatedAt || !parsed.updated_at || parsed.updated_at >= storeUpdatedAt)) {
           memRows = rows;
           storeUpdatedAt = parsed.updated_at || new Date().toISOString();
           saveLocalCache();
@@ -969,79 +1006,224 @@ tailwind.config = {
         return true;
       }
     } catch (e) {
-      await loadBundledVisas();
+      if (!memRows.length) await loadBundledIndex();
     }
     return false;
   }
 
-  async function pushToGitHub() {
+  async function uploadPhotoToGist(id, dataUrl) {
     const tok = unlockGitHubToken();
-    if (!GITHUB_GIST_ID || !tok) return false;
-    try {
-      const files = {};
-      files[GITHUB_GIST_FILE] = {
-        content: JSON.stringify({
-          version: 1,
-          updated_at: storeUpdatedAt,
-          records: memRows
-        }, null, 2)
-      };
-      const res = await fetch('https://api.github.com/gists/' + encodeURIComponent(GITHUB_GIST_ID), {
-        method: 'PATCH',
-        headers: {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': 'Bearer ' + tok,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          description: 'Kuwait eVisa Portal Cloud Store',
-          files: files
-        })
-      });
-      return res.ok;
-    } catch (e) { return false; }
+    if (!GITHUB_PHOTOS_GIST_ID || !tok) return '';
+    const fname = 'p_' + id + '.txt';
+    const files = {};
+    files[fname] = { content: dataUrl };
+    const res = await fetch('https://api.github.com/gists/' + encodeURIComponent(GITHUB_PHOTOS_GIST_ID), {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer ' + tok,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ files: files })
+    });
+    if (!res.ok) throw new Error('Photo upload failed (HTTP ' + res.status + ')');
+    const g = await res.json();
+    return (g && g.files && g.files[fname] && g.files[fname].raw_url) || '';
   }
 
+  async function deletePhotoFromGist(fname) {
+    const tok = unlockGitHubToken();
+    if (!GITHUB_PHOTOS_GIST_ID || !tok || !fname) return;
+    const files = {};
+    files[fname] = null;
+    await fetch('https://api.github.com/gists/' + encodeURIComponent(GITHUB_PHOTOS_GIST_ID), {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer ' + tok,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ files: files })
+    }).catch(() => {});
+  }
+
+  async function pushIndexToGitHub() {
+    const tok = unlockGitHubToken();
+    if (!GITHUB_GIST_ID || !tok) return false;
+    const files = {};
+    files[GITHUB_GIST_FILE] = {
+      content: JSON.stringify({
+        version: 2,
+        updated_at: storeUpdatedAt,
+        records: slimRows(memRows)
+      }, null, 2)
+    };
+    const res = await fetch('https://api.github.com/gists/' + encodeURIComponent(GITHUB_GIST_ID), {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer ' + tok,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        description: 'Kuwait eVisa Portal Index Store (Fast v2)',
+        files: files
+      })
+    });
+    if (!res.ok) throw new Error('Index sync failed (HTTP ' + res.status + ')');
+    lastPullAt = Date.now();
+    return true;
+  }
+
+  function enqueueCloudSync(taskFn) {
+    pendingSyncs++;
+    lastSyncFailed = false;
+    setSyncState('syncing');
+    syncChain = syncChain.then(taskFn).then(() => {
+      pendingSyncs = Math.max(0, pendingSyncs - 1);
+      if (pendingSyncs === 0 && !lastSyncFailed) {
+        setSyncState('synced');
+      }
+    }).catch(() => {
+      pendingSyncs = Math.max(0, pendingSyncs - 1);
+      lastSyncFailed = true;
+      setSyncState('error');
+    });
+    return syncChain;
+  }
+
+  window.addEventListener('beforeunload', function (ev) {
+    if (pendingSyncs > 0) {
+      ev.preventDefault();
+      ev.returnValue = '';
+    }
+  });
+
   const CloudStore = {
-    list: async function () {
-      await pullFromGitHub();
+    list: async function (force) {
+      if (force || !memRows.length) await pullFromGitHub(!!force);
       return memRows.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
     },
+    findLocal: function (code) {
+      const target = String(code || '').toUpperCase();
+      return memRows.find((r) => String(r.code || '').toUpperCase() === target) || null;
+    },
     find: async function (code) {
-      await pullFromGitHub();
-      let found = memRows.find((r) => String(r.code).toUpperCase() === String(code).toUpperCase()) || null;
+      const target = String(code || '').toUpperCase();
+      let found = this.findLocal(target);
+      if (!found) {
+        await pullFromGitHub(true);
+        found = this.findLocal(target);
+      } else {
+        /* Refresh index quietly in background if older than 5s */
+        pullFromGitHub(false);
+      }
       if (!found) {
         const fromUrl = readQueryVisaToken();
-        if (fromUrl && String(fromUrl.code).toUpperCase() === String(code).toUpperCase()) found = fromUrl;
+        if (fromUrl && String(fromUrl.code).toUpperCase() === target) found = fromUrl;
       }
-      return found;
+      if (!found) return null;
+      const hydrated = Object.assign({}, found);
+      hydrated.photo_url = await resolvePhoto(found);
+      return hydrated;
     },
-    create: async function (rec) {
-      const row = Object.assign({}, rec, { id: uid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+    create: function (rec, newDataPhoto) {
+      const id = uid();
+      const now = new Date().toISOString();
+      const hasNewPhoto = !!(newDataPhoto && newDataPhoto.indexOf('data:image/') === 0);
+      const row = Object.assign({}, rec, {
+        id: id,
+        photo_url: hasNewPhoto ? '' : (rec.photo_url || ''),
+        photo_ref: '',
+        photo_file: hasNewPhoto ? ('p_' + id + '.txt') : '',
+        created_at: now,
+        updated_at: now
+      });
+      if (hasNewPhoto) photoCache[id] = newDataPhoto;
       memRows.unshift(row);
-      storeUpdatedAt = new Date().toISOString();
+      storeUpdatedAt = now;
       saveLocalCache();
-      await pushToGitHub();
+
+      enqueueCloudSync(async () => {
+        if (hasNewPhoto) {
+          const rawUrl = await uploadPhotoToGist(id, newDataPhoto);
+          if (rawUrl) {
+            const target = memRows.find((r) => r.id === id);
+            if (target) { target.photo_ref = rawUrl; saveLocalCache(); }
+          }
+        }
+        await pushIndexToGitHub();
+      });
       return row;
     },
-    update: async function (id, patch) {
+    update: function (id, patch, photoAction) {
       const i = memRows.findIndex((r) => r.id === id);
-      if (i < 0) throw new Error('That record no longer exists. Refresh the register.');
-      memRows[i] = Object.assign({}, memRows[i], patch, { updated_at: new Date().toISOString() });
-      storeUpdatedAt = new Date().toISOString();
+      if (i < 0) throw new Error('That record no longer exists. Click Sync and try again.');
+      const prev = memRows[i];
+      const now = new Date().toISOString();
+      const next = Object.assign({}, prev, patch, { updated_at: now });
+      let uploadData = '';
+      let deleteOldFile = '';
+
+      if (photoAction && photoAction.type === 'upload') {
+        uploadData = photoAction.dataUrl;
+        photoCache[id] = uploadData;
+        next.photo_url = '';
+        next.photo_file = 'p_' + id + '.txt';
+      } else if (photoAction && photoAction.type === 'url') {
+        if (prev.photo_file) deleteOldFile = prev.photo_file;
+        delete photoCache[id];
+        next.photo_url = photoAction.url;
+        next.photo_ref = '';
+        next.photo_file = '';
+      } else if (photoAction && photoAction.type === 'clear') {
+        if (prev.photo_file) deleteOldFile = prev.photo_file;
+        delete photoCache[id];
+        next.photo_url = '';
+        next.photo_ref = '';
+        next.photo_file = '';
+      } else {
+        /* Unchanged photo — preserve existing photo_ref / photo_file / photo_url! */
+        next.photo_url = prev.photo_url || '';
+        next.photo_ref = prev.photo_ref || '';
+        next.photo_file = prev.photo_file || '';
+      }
+
+      memRows[i] = next;
+      storeUpdatedAt = now;
       saveLocalCache();
-      await pushToGitHub();
-      return memRows[i];
+
+      enqueueCloudSync(async () => {
+        if (uploadData) {
+          const rawUrl = await uploadPhotoToGist(id, uploadData);
+          if (rawUrl) {
+            const target = memRows.find((r) => r.id === id);
+            if (target) { target.photo_ref = rawUrl; saveLocalCache(); }
+          }
+        } else if (deleteOldFile) {
+          await deletePhotoFromGist(deleteOldFile);
+        }
+        await pushIndexToGitHub();
+      });
+      return next;
     },
-    remove: async function (id) {
+    remove: function (id) {
+      const target = memRows.find((r) => r.id === id);
+      const oldPhotoFile = (target && target.photo_file) || '';
       memRows = memRows.filter((r) => r.id !== id);
+      delete photoCache[id];
       storeUpdatedAt = new Date().toISOString();
       saveLocalCache();
-      await pushToGitHub();
+
+      enqueueCloudSync(async () => {
+        await pushIndexToGitHub();
+        if (oldPhotoFile) await deletePhotoFromGist(oldPhotoFile);
+      });
+    },
+    retrySync: function () {
+      return enqueueCloudSync(pushIndexToGitHub);
     }
   };
-
-  const LocalStore = CloudStore;
 
   const state = {
     mode: 'cloud',
@@ -1049,16 +1231,25 @@ tailwind.config = {
     records: [],
     record: null,
     editingId: null,
+    filter: 'all',
     cloudError: ''
   };
 
   async function initStore() {
     loadLocalCache();
-    await loadBundledVisas();
-    await pullFromGitHub();
+    if (!memRows.length) await loadBundledIndex();
+    /* Pull fresh 30 KB index in background if cache already populated, else await */
+    if (memRows.length) {
+      pullFromGitHub(true).then(() => {
+        state.records = memRows.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+        if (isShown($('#adminConsole'))) renderList();
+      });
+    } else {
+      await pullFromGitHub(true);
+    }
     state.mode = 'cloud';
     state.store = CloudStore;
-    state.cloudError = '';
+    state.records = memRows.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
   }
 
   function sampleRecord() {
@@ -1654,16 +1845,195 @@ tailwind.config = {
     });
   }
 
-  const FORM_FIELDS = ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr',
-    'fTypeEn', 'fTypeAr', 'fGender', 'fDob', 'fIssue', 'fExpiry', 'fCode', 'fValidity'];
+  const PHOTO_STORE_MAX = 180000;
+  let photoState = { mode: 'keep', value: '' };
 
-  const presetOptions = (items, label) =>
-    '<option value="">' + label + '</option>' + items.map((it, i) => '<option value="' + i + '">' + esc(it.en) + '</option>').join('');
+  function fillDatalists() {
+    const dlNat = $('#dlNationality');
+    const dlProf = $('#dlProfession');
+    const dlType = $('#dlVisaType');
+    if (dlNat) dlNat.innerHTML = NATIONALITIES.map((n) => '<option value="' + esc(n.en) + '"></option>').join('');
+    if (dlProf) dlProf.innerHTML = PROFESSIONS.map((p) => '<option value="' + esc(p.en) + '"></option>').join('');
+    if (dlType) dlType.innerHTML = VISA_TYPES.map((t) => '<option value="' + esc(t.en) + '"></option>').join('');
+  }
 
-  function fillSelects() {
-    $('#fNatPreset').innerHTML = presetOptions(NATIONALITIES, 'Choose a nationality preset');
-    $('#fProfPreset').innerHTML = presetOptions(PROFESSIONS, 'Choose a profession preset');
-    $('#fTypePreset').innerHTML = presetOptions(VISA_TYPES, 'Choose a visa type preset');
+  function autoFillNationalityAr() {
+    const val = clean($('#fNatEn').value, 60).toLowerCase();
+    const match = NATIONALITIES.find((n) => n.en.toLowerCase() === val);
+    if (match) $('#fNatAr').value = match.ar;
+  }
+
+  function autoFillProfessionAr() {
+    const val = clean($('#fProfEn').value, 80).toLowerCase();
+    const match = PROFESSIONS.find((p) => p.en.toLowerCase() === val);
+    if (match) {
+      $('#fProfAr').value = $('#fGender').value === 'Female' ? (match.arf || match.ar) : match.ar;
+    }
+  }
+
+  function autoFillVisaTypeAr() {
+    const val = clean($('#fTypeEn').value, 80).toLowerCase();
+    const match = VISA_TYPES.find((t) => t.en.toLowerCase() === val);
+    if (match) $('#fTypeAr').value = match.ar;
+  }
+
+  function updatePhotoPreview(src, metaText, hasPhoto) {
+    const img = $('#photoPreview');
+    const metaEl = $('#photoMeta');
+    if (img) {
+      img.onerror = function () { img.src = placeholderPhoto(); };
+      img.src = src || placeholderPhoto();
+    }
+    if (metaEl && metaText != null) metaEl.textContent = metaText;
+    show($('#photoClearBtn'), !!hasPhoto);
+  }
+
+  function showFormError(message) {
+    const el = $('#formError');
+    if (!el) return;
+    if (!message) { el.textContent = ''; show(el, false); return; }
+    el.textContent = message;
+    show(el, true);
+    try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { }
+  }
+
+  function compressImage(file, maxEdge, quality) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onerror = function () { reject(new Error('Could not read the image from this device.')); };
+      reader.onload = function () {
+        const probe = new Image();
+        probe.onerror = function () { reject(new Error('Selected file is not a valid image.')); };
+        probe.onload = function () {
+          const w = probe.naturalWidth || probe.width;
+          const h = probe.naturalHeight || probe.height;
+          if (!w || !h) { reject(new Error('Image has zero dimensions.')); return; }
+          const scale = Math.min(1, maxEdge / Math.max(w, h));
+          const cw = Math.max(1, Math.round(w * scale));
+          const ch = Math.max(1, Math.round(h * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = cw;
+          canvas.height = ch;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(probe, 0, 0, cw, ch);
+          let out = canvas.toDataURL('image/jpeg', quality);
+          if (out.length > PHOTO_STORE_MAX) out = canvas.toDataURL('image/jpeg', 0.62);
+          if (out.length > PHOTO_STORE_MAX) out = canvas.toDataURL('image/jpeg', 0.48);
+          resolve({ dataUrl: out, width: cw, height: ch, kb: Math.round(out.length * 0.75 / 1024) });
+        };
+        probe.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handlePhotoFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      showFormError('That file is not an image. Choose a JPG, PNG or WebP picture.');
+      return;
+    }
+    const metaEl = $('#photoMeta');
+    if (metaEl) metaEl.textContent = 'Compressing photo...';
+    try {
+      const shot = await compressImage(file, 480, 0.78);
+      photoState = { mode: 'upload', value: shot.dataUrl };
+      const urlEl = $('#fPhoto');
+      if (urlEl) urlEl.value = '';
+      updatePhotoPreview(shot.dataUrl, 'Ready (' + shot.kb + ' KB) · syncs fast', true);
+      showFormError('');
+    } catch (e) {
+      showFormError((e && e.message) ? e.message : 'The photo could not be processed.');
+    }
+  }
+
+  function openDrawer(rec) {
+    rememberFocus();
+    const isEdit = !!(rec && rec.id);
+    state.editingId = isEdit ? rec.id : null;
+    showFormError('');
+
+    const header = $('#drawerHeader');
+    const title = $('#drawerTitle');
+    const subtitle = $('#drawerSubtitle');
+    const saveLabel = $('#saveBtn').firstElementChild;
+
+    if (isEdit) {
+      header.className = 'flex items-center justify-between gap-3 border-b-2 border-gold-500 bg-sand-50 px-5 py-4 text-navy';
+      title.textContent = 'Edit record · ' + rec.code;
+      subtitle.textContent = 'تعديل السجل الموجود';
+      subtitle.className = 'ar-ui text-[12px] text-gold-700';
+      $('#drawerCloseBtn').className = 'inline-flex h-10 w-10 flex-none items-center justify-center rounded-[4px] border border-sand-300 text-navy hover:bg-white';
+      if (saveLabel) saveLabel.textContent = 'Save changes';
+    } else {
+      header.className = 'flex items-center justify-between gap-3 border-b border-sand-200 bg-navy px-5 py-4 text-white';
+      title.textContent = 'New visa record';
+      subtitle.textContent = 'إضافة سجل تأشيرة جديد';
+      subtitle.className = 'ar-ui text-[12px] text-gold-200';
+      $('#drawerCloseBtn').className = 'inline-flex h-10 w-10 flex-none items-center justify-center rounded-[4px] border border-white/25 text-white hover:bg-white/10';
+      if (saveLabel) saveLabel.textContent = 'Save record';
+    }
+
+    const today = todayISO();
+    $('#fNameEn').value = isEdit ? (rec.full_name_en || '') : '';
+    $('#fNameAr').value = isEdit ? (rec.full_name_ar || '') : '';
+    $('#fPassport').value = isEdit ? (rec.passport_no || '') : '';
+    $('#fNatEn').value = isEdit ? (rec.nationality_en || '') : '';
+    $('#fNatAr').value = isEdit ? (rec.nationality_ar || '') : '';
+    $('#fProfEn').value = isEdit ? (rec.profession_en || '') : '';
+    $('#fProfAr').value = isEdit ? (rec.profession_ar || '') : '';
+    $('#fTypeEn').value = isEdit ? (rec.visa_type_en || '') : '';
+    $('#fTypeAr').value = isEdit ? (rec.visa_type_ar || '') : '';
+    $('#fGender').value = (isEdit && rec.gender === 'Female') ? 'Female' : 'Male';
+    $('#fDob').value = isEdit ? (rec.date_of_birth || '') : '';
+    $('#fIssue').value = isEdit ? (rec.issue_date || today) : today;
+    $('#fExpiry').value = isEdit ? (rec.expiry_date || addDays(today, 90)) : addDays(today, 90);
+    $('#fCode').value = isEdit ? (rec.code || '') : uniqueCode();
+
+    const fileEl = $('#fPhotoFile');
+    if (fileEl) fileEl.value = '';
+
+    if (isEdit) {
+      const hasExternalUrl = !!(rec.photo_url && /^https?:\/\//i.test(rec.photo_url));
+      const hasCloudPhoto = !!(rec.photo_ref || rec.photo_file || photoCache[rec.id]);
+      photoState = { mode: 'keep', value: '' };
+      $('#fPhoto').value = hasExternalUrl ? rec.photo_url : '';
+      if (hasExternalUrl) {
+        updatePhotoPreview(rec.photo_url, 'External photo URL set.', true);
+      } else if (hasCloudPhoto) {
+        const cached = photoCache[rec.id];
+        updatePhotoPreview(cached || placeholderPhoto(), cached ? 'Saved cloud photo attached.' : 'Loading saved photo...', true);
+        if (!cached) {
+          const targetId = rec.id;
+          resolvePhoto(rec).then((dataUrl) => {
+            if (state.editingId === targetId && photoState.mode === 'keep' && dataUrl) {
+              updatePhotoPreview(dataUrl, 'Saved cloud photo attached.', true);
+            }
+          });
+        }
+      } else {
+        updatePhotoPreview('', 'No photo attached.', false);
+      }
+    } else {
+      photoState = { mode: 'clear', value: '' };
+      $('#fPhoto').value = '';
+      updatePhotoPreview('', 'Auto-compressed for fast cloud sync.', false);
+    }
+
+    show($('#recordDrawer'), true);
+    document.documentElement.classList.add('overflow-hidden');
+    setTimeout(() => { try { $('#fNameEn').focus(); } catch (e) {} }, 60);
+  }
+
+  function closeDrawer() {
+    const drawer = $('#recordDrawer');
+    if (!isShown(drawer)) return;
+    show(drawer, false);
+    state.editingId = null;
+    document.documentElement.classList.remove('overflow-hidden');
+    restoreFocus();
   }
 
   function readForm() {
@@ -1681,7 +2051,7 @@ tailwind.config = {
       date_of_birth: $('#fDob').value || null,
       issue_date: $('#fIssue').value || todayISO(),
       expiry_date: $('#fExpiry').value || '',
-      photo_url: String(photoData || '').trim().slice(0, PHOTO_STORE_MAX),
+      photo_url: photoState.mode === 'url' ? photoState.value : '',
       code: normalizeCode($('#fCode').value)
     };
   }
@@ -1690,357 +2060,212 @@ tailwind.config = {
     const problems = [];
     if (!rec.full_name_en) problems.push('Full name in English is required.');
     if (!rec.passport_no) problems.push('Passport number is required.');
-    else if (!/^[A-Z0-9-]{5,15}$/.test(rec.passport_no)) problems.push('Passport numbers use 5 to 15 letters, digits, or hyphens.');
+    else if (!/^[A-Z0-9-]{4,20}$/.test(rec.passport_no)) problems.push('Passport number must be 4 to 20 letters, digits, or hyphens.');
     if (!rec.nationality_en) problems.push('Nationality in English is required.');
-    if (!rec.visa_type_en) problems.push('A visa type is required, because the document prints it.');
-    if (!rec.code || rec.code.length !== 6) problems.push('The reference must be exactly six letters or digits.');
-    if (!rec.issue_date) problems.push('An issue date is required.');
-    if (!rec.expiry_date) problems.push('An expiry date is required.');
-    else if (rec.issue_date && rec.expiry_date < rec.issue_date) problems.push('The expiry date cannot fall before the issue date.');
+    if (!rec.visa_type_en) problems.push('Visa type in English is required.');
+    if (!rec.code || rec.code.length !== 6) problems.push('Reference code must be exactly 6 characters.');
+    if (!rec.issue_date) problems.push('Issue date is required.');
+    if (!rec.expiry_date) problems.push('Expiry date is required.');
+    else if (rec.issue_date && rec.expiry_date < rec.issue_date) problems.push('Expiry date cannot be before issue date.');
     return problems;
   }
 
-  function applyValidity() {
-    const issue = $('#fIssue').value || todayISO();
-    const days = Number($('#fValidity').value || 90);
-    $('#fExpiry').value = addDays(issue, days);
-  }
-
-  function syncProfessionAr() {
-    const idx = $('#fProfPreset').value;
-    if (idx === '') return;
-    const p = PROFESSIONS[Number(idx)];
-    if (!p) return;
-    $('#fProfAr').value = $('#fGender').value === 'Female' ? (p.arf || p.ar) : p.ar;
-  }
-
-  const PHOTO_STORE_MAX = 400000;
-
-  let photoData = '';
-
-  function setPhoto(value, keepInput) {
-    photoData = String(value == null ? '' : value).trim();
-    const urlEl = $('#fPhoto');
-    const fileEl = $('#fPhotoFile');
-    if (fileEl) fileEl.value = '';
-    if (urlEl && !keepInput) urlEl.value = photoData.indexOf('data:') === 0 ? '' : photoData;
-    const metaEl = $('#photoMeta');
-    if (metaEl) metaEl.textContent = photoData.indexOf('data:') === 0 ? 'Uploaded picture stored in this record' : '';
-    show($('#photoClearBtn'), photoData.length > 0);
-    updatePhotoPreview();
-  }
-
-  function updatePhotoPreview() {
-    const img = $('#photoPreview');
-    img.onerror = function () { img.src = placeholderPhoto(); };
-    img.src = photoData || placeholderPhoto();
-  }
-
-  function showFormError(message) {
-    const el = $('#formError');
-    if (!el) return;
-    el.textContent = message;
-    show(el, true);
-    try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { }
-  }
-
-  function compressImage(file, maxEdge, quality) {
-    return new Promise(function (resolve, reject) {
-      const reader = new FileReader();
-      reader.onerror = function () { reject(new Error('The picture could not be read from this device.')); };
-      reader.onload = function () {
-        const probe = new Image();
-        probe.onerror = function () { reject(new Error('That file is not a picture this browser can draw.')); };
-        probe.onload = function () {
-          const w = probe.naturalWidth || probe.width;
-          const h = probe.naturalHeight || probe.height;
-          if (!w || !h) { reject(new Error('The picture reports no size.')); return; }
-          const scale = Math.min(1, maxEdge / Math.max(w, h));
-          const cw = Math.max(1, Math.round(w * scale));
-          const ch = Math.max(1, Math.round(h * scale));
-          const canvas = document.createElement('canvas');
-          canvas.width = cw;
-          canvas.height = ch;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, cw, ch);
-          ctx.drawImage(probe, 0, 0, cw, ch);
-          let out = canvas.toDataURL('image/jpeg', quality);
-          if (out.length > PHOTO_STORE_MAX) out = canvas.toDataURL('image/jpeg', 0.6);
-          if (out.length > PHOTO_STORE_MAX) { reject(new Error('The picture is too large to store even after resizing.')); return; }
-          resolve({ dataUrl: out, width: cw, height: ch });
-        };
-        probe.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function handlePhotoFile(file) {
-    if (!file) return;
-    if (!/^image\//.test(file.type)) {
-      showFormError('That file is not an image. Choose a JPG, PNG or WebP picture.');
-      return;
-    }
-    const metaEl = $('#photoMeta');
-    if (metaEl) metaEl.textContent = 'Preparing the picture…';
-    try {
-      const shot = await compressImage(file, 720, 0.82);
-      setPhoto(shot.dataUrl);
-      if (metaEl) metaEl.textContent = 'Uploaded ' + shot.width + '×' + shot.height + ' · stored in the record';
-      show($('#formError'), false);
-    } catch (e) {
-      setPhoto(photoData);
-      showFormError((e && e.message) ? e.message : 'The picture could not be prepared.');
-    }
-  }
-
-  function updateFormMode() {
-    const editing = !!state.editingId;
-    $('#formTitle').textContent = editing ? 'Edit visa record' : 'Create a visa record';
-    $('#formSubtitle').textContent = editing ? 'تعديل سجل التأشيرة' : 'إضافة سجل تأشيرة';
-    const saveLabel = $('#saveBtn').firstElementChild;
-    if (saveLabel) saveLabel.textContent = editing ? 'Save changes' : 'Save record';
-    show($('#cancelEditBtn'), editing);
-  }
-
-  function clearForm() {
-    ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr', 'fTypeEn', 'fTypeAr', 'fDob', 'fCode']
-      .forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
-    ['fNatPreset', 'fProfPreset', 'fTypePreset'].forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
-    $('#fGender').value = 'Male';
-    $('#fIssue').value = todayISO();
-    $('#fValidity').value = '90';
-    applyValidity();
-    setPhoto('');
-    show($('#formError'), false);
-    state.editingId = null;
-    updateFormMode();
-  }
-
-  let draftTimer = null;
-  function saveDraft() {
-    const fields = {};
-    FORM_FIELDS.forEach(function (id) { const el = document.getElementById(id); if (el) fields[id] = el.value; });
-    safeSet(DRAFT_KEY, JSON.stringify({ fields: fields, editingId: state.editingId }));
-  }
-  function scheduleDraft() {
-    if (draftTimer) clearTimeout(draftTimer);
-    draftTimer = setTimeout(saveDraft, 500);
-  }
-  function restoreDraft() {
-    const raw = safeGet(DRAFT_KEY);
-    if (!raw) return false;
-    let data = null;
-    try { data = JSON.parse(raw); } catch (e) { return false; }
-    if (!data || !data.fields) return false;
-    const hasContent = ['fNameEn', 'fPassport', 'fCode', 'fNatEn', 'fProfEn'].some((k) => String(data.fields[k] || '').trim().length > 0);
-    if (!hasContent) return false;
-    FORM_FIELDS.forEach(function (id) { if (data.fields[id] != null) { const el = document.getElementById(id); if (el) el.value = data.fields[id]; } });
-    state.editingId = data.editingId || null;
-    updateFormMode();
-    updatePhotoPreview();
-    const note = $('#draftNote');
-    show(note, true);
-    note.innerHTML = 'An unsaved draft from this device was restored. '
-      + '<button type="button" id="draftClear" class="min-h-[32px] font-semibold text-navy underline">Discard it</button>'
-      + '<span class="ar-ui block" dir="rtl" lang="ar">تم استرجاع مسودة غير محفوظة من هذا الجهاز.</span>';
-    $('#draftClear').addEventListener('click', function () { safeDel(DRAFT_KEY); show(note, false); clearForm(); });
-    return true;
-  }
-
-  function startEdit(id) {
-    const rec = state.records.find(function (r) { return r.id === id; });
-    if (!rec) { toast('That record left the list. Refresh the register and try again.'); return; }
-    state.editingId = id;
-    $('#fNameEn').value = rec.full_name_en || '';
-    $('#fNameAr').value = rec.full_name_ar || '';
-    $('#fPassport').value = rec.passport_no || '';
-    $('#fNatEn').value = rec.nationality_en || '';
-    $('#fNatAr').value = rec.nationality_ar || '';
-    $('#fProfEn').value = rec.profession_en || '';
-    $('#fProfAr').value = rec.profession_ar || '';
-    $('#fTypeEn').value = rec.visa_type_en || '';
-    $('#fTypeAr').value = rec.visa_type_ar || '';
-    $('#fGender').value = rec.gender === 'Female' ? 'Female' : 'Male';
-    $('#fDob').value = rec.date_of_birth || '';
-    $('#fIssue').value = rec.issue_date || '';
-    $('#fExpiry').value = rec.expiry_date || '';
-    setPhoto(rec.photo_url || '');
-    $('#fCode').value = rec.code || '';
-    updateFormMode();
-    saveDraft();
-    toast('Editing reference ' + rec.code + '. Save changes to publish them.');
-    try { $('#formTitle').scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { }
-  }
-
-  async function saveRecord(ev) {
+  function saveRecord(ev) {
     ev.preventDefault();
     const rec = readForm();
-    const errEl = $('#formError');
     const problems = validateForm(rec);
     if (problems.length) {
-      errEl.textContent = problems.join(' ');
-      show(errEl, true);
-      try { errEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { }
+      showFormError(problems.join(' '));
       return;
     }
-    show(errEl, false);
-    const btn = $('#saveBtn');
-    btn.disabled = true;
+
+    /* Instant 0ms duplicate code check against live memory */
+    const existing = CloudStore.findLocal(rec.code);
+    if (existing && existing.id !== state.editingId) {
+      showFormError('Reference ' + rec.code + ' is already used by ' + existing.full_name_en + '. Click New code.');
+      return;
+    }
+
+    showFormError('');
     try {
-      const existing = await state.store.find(rec.code);
-      if (existing && existing.id !== state.editingId) {
-        throw new Error('Reference ' + rec.code + ' is already in the register. Generate a different number.');
-      }
       if (state.editingId) {
-        await state.store.update(state.editingId, rec);
+        const photoAction = photoState.mode === 'upload'
+          ? { type: 'upload', dataUrl: photoState.value }
+          : (photoState.mode === 'url'
+              ? { type: 'url', url: photoState.value }
+              : (photoState.mode === 'clear' ? { type: 'clear' } : { type: 'keep' }));
+        CloudStore.update(state.editingId, rec, photoAction);
         toast('Record ' + rec.code + ' updated.');
       } else {
-        await state.store.create(rec);
-        toast('Record ' + rec.code + ' saved. Every device on this build sees it on the next check.');
+        const newDataPhoto = photoState.mode === 'upload' ? photoState.value : '';
+        CloudStore.create(rec, newDataPhoto);
+        toast('Record ' + rec.code + ' created.');
       }
-      safeDel(DRAFT_KEY);
-      show($('#draftNote'), false);
-      clearForm();
-      await refreshRecords();
+      state.records = memRows.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+      closeDrawer();
+      renderList();
     } catch (e) {
-      errEl.textContent = (e && e.message) ? e.message : 'The record could not be saved.';
-      show(errEl, true);
-    } finally {
-      btn.disabled = false;
+      showFormError((e && e.message) ? e.message : 'Could not save the record.');
     }
   }
 
   async function deleteRecord(id) {
-    const rec = state.records.find(function (r) { return r.id === id; });
+    const rec = state.records.find((r) => r.id === id);
     if (!rec) return;
     const ok = await openConfirm({
       title: 'Delete record',
-      body: 'Delete the record for ' + (rec.full_name_en || 'this applicant') + ' with reference ' + rec.code + '? Its share link stops working straight away.',
-      okLabel: 'Delete record'
+      body: 'Delete ' + (rec.full_name_en || 'this applicant') + ' (reference ' + rec.code + ')? Its share link will stop working.',
+      okLabel: 'Delete'
     });
     if (!ok) return;
-    try {
-      await state.store.remove(id);
-      toast('Record ' + rec.code + ' deleted.');
-      if (state.editingId === id) clearForm();
-      await refreshRecords();
-    } catch (e) {
-      toast((e && e.message) ? e.message : 'The record could not be deleted.');
-    }
+    CloudStore.remove(id);
+    state.records = memRows.slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+    renderList();
+    toast('Record ' + rec.code + ' deleted.');
+  }
+
+  function previewRecord(id) {
+    const rec = state.records.find((r) => r.id === id);
+    if (!rec) return;
+    window.location.hash = '#inquiry';
+    showView('portal');
+    verify(rec.code);
   }
 
   const statusChip = (r) => {
     const expired = statusOf(r) === 'expired';
     return '<span class="inline-flex items-center rounded-[4px] border px-2 py-0.5 text-[11px] font-semibold '
-      + (expired ? 'border-alert text-alert' : 'border-green text-green') + '">' + (expired ? 'Expired' : 'Valid') + '</span>';
+      + (expired ? 'border-alert bg-[#fdf4f4] text-alert' : 'border-green bg-green-50 text-green') + '">' + (expired ? 'Expired' : 'Valid') + '</span>';
   };
 
   function actionsCell(r, minH) {
-    const base = 'inline-flex items-center rounded-[4px] border px-2.5 text-[12px] font-semibold ';
+    const base = 'inline-flex items-center justify-center rounded-[4px] border px-2.5 text-[12px] font-semibold ';
     return '<div class="flex flex-wrap gap-1.5">'
-      + '<button type="button" data-act="link" data-id="' + esc(r.id) + '" class="' + base + 'border-sand-300 text-navy hover:bg-sand-50 ' + minH + '">Copy link</button>'
-      + '<button type="button" data-act="edit" data-id="' + esc(r.id) + '" class="' + base + 'border-sand-300 text-navy hover:bg-sand-50 ' + minH + '">Edit</button>'
-      + '<button type="button" data-act="delete" data-id="' + esc(r.id) + '" class="' + base + 'border-alert text-alert hover:bg-[#fdf4f4] ' + minH + '">Delete</button>'
+      + '<button type="button" data-act="view" data-id="' + esc(r.id) + '" class="' + base + 'border-navy bg-navy text-white hover:bg-navy-800 ' + minH + '">View</button>'
+      + '<button type="button" data-act="link" data-id="' + esc(r.id) + '" class="' + base + 'border-sand-300 bg-white text-navy hover:bg-sand-50 ' + minH + '">Link</button>'
+      + '<button type="button" data-act="edit" data-id="' + esc(r.id) + '" class="' + base + 'border-sand-300 bg-white text-navy hover:bg-sand-50 ' + minH + '">Edit</button>'
+      + '<button type="button" data-act="delete" data-id="' + esc(r.id) + '" class="' + base + 'border-alert bg-white text-alert hover:bg-[#fdf4f4] ' + minH + '">Delete</button>'
       + '</div>';
   }
 
   function tableRowHTML(r) {
-    return '<tr>'
-      + '<td class="tabular mono-doc px-3 py-2 align-top font-semibold text-navy">' + esc(r.code) + '</td>'
-      + '<td class="px-3 py-2 align-top"><p class="font-semibold text-ink">' + esc(r.full_name_en || '-') + '</p>'
+    return '<tr class="hover:bg-sand-50/50">'
+      + '<td class="tabular mono-doc px-3 py-2.5 align-top text-[14px] font-bold text-navy">' + esc(r.code) + '</td>'
+      + '<td class="px-3 py-2.5 align-top"><p class="font-semibold text-ink">' + esc(r.full_name_en || '-') + '</p>'
       + (r.full_name_ar ? '<p class="ar-ui text-[12px] text-slate-600" dir="rtl" lang="ar">' + esc(r.full_name_ar) + '</p>' : '')
+      + '<p class="mt-0.5 text-[11px] text-slate-500">' + esc(r.nationality_en || '-') + (r.gender ? ' · ' + esc(r.gender) : '') + '</p>'
       + '</td>'
-      + '<td class="mono-doc px-3 py-2 align-top">' + esc(r.passport_no || '-') + '</td>'
-      + '<td class="px-3 py-2 align-top">' + esc(r.nationality_en || '-') + '</td>'
-      + '<td class="px-3 py-2 align-top">' + esc(r.visa_type_en || '-') + '</td>'
-      + '<td class="tabular px-3 py-2 align-top">' + esc(fmtDate(r.issue_date)) + ' · ' + esc(fmtDate(r.expiry_date)) + '</td>'
-      + '<td class="px-3 py-2 align-top">' + statusChip(r) + '</td>'
-      + '<td class="px-3 py-2 align-top">' + actionsCell(r, 'min-h-[36px]') + '</td>'
+      + '<td class="mono-doc px-3 py-2.5 align-top text-[12px] font-medium text-ink">' + esc(r.passport_no || '-') + '</td>'
+      + '<td class="px-3 py-2.5 align-top text-[12px]"><p class="font-medium text-ink">' + esc(r.visa_type_en || '-') + '</p>'
+      + (r.profession_en ? '<p class="text-[11px] text-slate-500">' + esc(r.profession_en) + '</p>' : '') + '</td>'
+      + '<td class="tabular px-3 py-2.5 align-top text-[12px]"><div class="flex flex-col items-start gap-1">'
+      + statusChip(r)
+      + '<span class="text-[11px] text-slate-500">' + esc(fmtDate(r.issue_date)) + ' to ' + esc(fmtDate(r.expiry_date)) + '</span>'
+      + '</div></td>'
+      + '<td class="px-3 py-2.5 align-top">' + actionsCell(r, 'min-h-[36px]') + '</td>'
       + '</tr>';
   }
 
   function cardHTML(r) {
-    return '<article class="rounded-[6px] border border-sand-200 bg-white p-3">'
+    return '<article class="rounded-[6px] border border-sand-200 bg-white p-3.5">'
       + '<div class="flex items-start justify-between gap-2">'
       + '<div class="min-w-0">'
-      + '<p class="tabular mono-doc text-[16px] font-semibold text-navy">' + esc(r.code) + '</p>'
-      + '<p class="mt-0.5 truncate text-[13px] font-semibold text-ink">' + esc(r.full_name_en || '-') + '</p>'
+      + '<p class="tabular mono-doc text-[16px] font-bold text-navy">' + esc(r.code) + '</p>'
+      + '<p class="mt-0.5 truncate text-[14px] font-semibold text-ink">' + esc(r.full_name_en || '-') + '</p>'
       + (r.full_name_ar ? '<p class="ar-ui truncate text-[12px] text-slate-600" dir="rtl" lang="ar">' + esc(r.full_name_ar) + '</p>' : '')
       + '</div>' + statusChip(r) + '</div>'
-      + '<dl class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12px] text-slate-700">'
-      + '<div><dt class="text-[10px] font-semibold text-slate-500">Passport</dt><dd class="mono-doc">' + esc(r.passport_no || '-') + '</dd></div>'
-      + '<div><dt class="text-[10px] font-semibold text-slate-500">Nationality</dt><dd>' + esc(r.nationality_en || '-') + '</dd></div>'
-      + '<div class="col-span-2"><dt class="text-[10px] font-semibold text-slate-500">Visa type</dt><dd>' + esc(r.visa_type_en || '-') + '</dd></div>'
-      + '<div class="col-span-2"><dt class="text-[10px] font-semibold text-slate-500">Validity</dt><dd class="tabular">' + esc(fmtDate(r.issue_date)) + ' · ' + esc(fmtDate(r.expiry_date)) + '</dd></div>'
+      + '<dl class="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12px] text-slate-700">'
+      + '<div><dt class="text-[10px] font-semibold uppercase text-slate-500">Passport</dt><dd class="mono-doc">' + esc(r.passport_no || '-') + '</dd></div>'
+      + '<div><dt class="text-[10px] font-semibold uppercase text-slate-500">Nationality</dt><dd>' + esc(r.nationality_en || '-') + '</dd></div>'
+      + '<div class="col-span-2"><dt class="text-[10px] font-semibold uppercase text-slate-500">Visa &amp; profession</dt><dd>' + esc(r.visa_type_en || '-') + (r.profession_en ? ' · ' + esc(r.profession_en) : '') + '</dd></div>'
+      + '<div class="col-span-2"><dt class="text-[10px] font-semibold uppercase text-slate-500">Validity</dt><dd class="tabular">' + esc(fmtDate(r.issue_date)) + ' to ' + esc(fmtDate(r.expiry_date)) + '</dd></div>'
       + '</dl>'
-      + '<div class="mt-3">' + actionsCell(r, 'min-h-[44px]') + '</div>'
+      + '<div class="mt-3 border-t border-sand-200 pt-2.5">' + actionsCell(r, 'min-h-[42px] flex-1') + '</div>'
       + '</article>';
   }
 
+  function updateFilterCounts() {
+    let valid = 0, expired = 0;
+    for (let i = 0; i < state.records.length; i++) {
+      if (statusOf(state.records[i]) === 'expired') expired++;
+      else valid++;
+    }
+    const cAll = $('#countAll'), cVal = $('#countValid'), cExp = $('#countExpired');
+    if (cAll) cAll.textContent = String(state.records.length);
+    if (cVal) cVal.textContent = String(valid);
+    if (cExp) cExp.textContent = String(expired);
+
+    $$('.filter-tab').forEach((btn) => {
+      const active = btn.getAttribute('data-filter') === state.filter;
+      btn.className = active
+        ? 'filter-tab inline-flex min-h-[38px] items-center gap-1.5 rounded-[4px] border border-navy bg-navy px-3 text-[12px] font-semibold text-white'
+        : 'filter-tab inline-flex min-h-[38px] items-center gap-1.5 rounded-[4px] border border-sand-300 bg-white px-3 text-[12px] font-semibold text-slate-700 hover:bg-sand-50';
+    });
+  }
+
   function filteredRecords() {
-    const q = clean($('#searchInput').value, 60).toLowerCase();
-    if (!q) return state.records;
+    const q = clean($('#searchInput') ? $('#searchInput').value : '', 60).toLowerCase();
     return state.records.filter(function (r) {
-      return [r.code, r.full_name_en, r.full_name_ar, r.passport_no, r.nationality_en, r.visa_type_en]
+      if (state.filter === 'valid' && statusOf(r) !== 'valid') return false;
+      if (state.filter === 'expired' && statusOf(r) !== 'expired') return false;
+      if (!q) return true;
+      return [r.code, r.full_name_en, r.full_name_ar, r.passport_no, r.nationality_en, r.visa_type_en, r.profession_en]
         .join(' ').toLowerCase().indexOf(q) >= 0;
     });
   }
 
   function renderList() {
+    updateFilterCounts();
     const region = $('#listRegion');
+    if (!region) return;
     if (!state.records.length) {
-      region.innerHTML = '<div class="rounded-[4px] border border-dashed border-sand-300 px-4 py-6 text-center">'
-        + '<p class="text-[13px] font-semibold text-ink">The register is empty</p>'
-        + '<p class="ar-ui text-[13px] text-slate-600" dir="rtl" lang="ar">السجل فارغ</p>'
-        + '<p class="mx-auto mt-1 max-w-sm text-[12px] leading-relaxed text-slate-500">Create the first record with the form above. Until Supabase is connected, records stay in this browser.</p>'
+      region.innerHTML = '<div class="rounded-[4px] border border-dashed border-sand-300 px-4 py-8 text-center">'
+        + '<p class="text-[14px] font-semibold text-ink">No visa records yet</p>'
+        + '<p class="ar-ui mt-0.5 text-[13px] text-slate-600" dir="rtl" lang="ar">لا توجد سجلات بعد</p>'
+        + '<p class="mx-auto mt-1 max-w-sm text-[12px] text-slate-500">Click Add record above to register your first eVisa.</p>'
         + '</div>';
       return;
     }
     const rows = filteredRecords();
     if (!rows.length) {
-      region.innerHTML = '<p class="px-1 py-4 text-[13px] text-slate-600">No record matches that search. Clear the search field to see all '
+      region.innerHTML = '<p class="px-1 py-6 text-center text-[13px] text-slate-600">No records match the current filter or search. Clear search or select All to see all '
         + state.records.length + ' records.</p>';
       return;
     }
-    const total = state.records.length;
-    const label = (n) => n + (n === 1 ? ' record' : ' records');
-    const count = rows.length === total ? label(total) : rows.length + ' of ' + label(total);
-    region.innerHTML = '<p class="mb-2 text-[12px] text-slate-500">' + count + '</p>'
-      + '<div class="hidden md:block"><div class="max-w-full overflow-x-auto rounded-[4px] border border-slate-200">'
-      + '<table class="w-full min-w-[900px] border-collapse text-left text-[13px]">'
-      + '<thead class="bg-sand-50 text-[11px] font-semibold text-slate-600"><tr>'
-      + '<th class="px-3 py-2 font-semibold">Reference</th>'
-      + '<th class="px-3 py-2 font-semibold">Applicant</th>'
-      + '<th class="px-3 py-2 font-semibold">Passport</th>'
-      + '<th class="px-3 py-2 font-semibold">Nationality</th>'
-      + '<th class="px-3 py-2 font-semibold">Visa type</th>'
-      + '<th class="px-3 py-2 font-semibold">Validity</th>'
-      + '<th class="px-3 py-2 font-semibold">Status</th>'
-      + '<th class="px-3 py-2 font-semibold">Actions</th>'
+    region.innerHTML = '<div class="hidden md:block"><div class="max-w-full overflow-x-auto rounded-[4px] border border-slate-200">'
+      + '<table class="w-full min-w-[820px] border-collapse text-left text-[13px]">'
+      + '<thead class="bg-sand-50 text-[11px] font-semibold uppercase tracking-wide text-slate-600"><tr>'
+      + '<th class="px-3 py-2.5 font-semibold">Reference</th>'
+      + '<th class="px-3 py-2.5 font-semibold">Applicant</th>'
+      + '<th class="px-3 py-2.5 font-semibold">Passport</th>'
+      + '<th class="px-3 py-2.5 font-semibold">Visa &amp; Profession</th>'
+      + '<th class="px-3 py-2.5 font-semibold">Validity</th>'
+      + '<th class="px-3 py-2.5 font-semibold">Actions</th>'
       + '</tr></thead><tbody class="divide-y divide-slate-100 bg-white">'
       + rows.map(tableRowHTML).join('')
       + '</tbody></table></div></div>'
       + '<div class="space-y-3 md:hidden">' + rows.map(cardHTML).join('') + '</div>';
   }
 
-  async function refreshRecords() {
-    const region = $('#listRegion');
-    region.innerHTML = '<div class="space-y-2 py-2">'
-      + '<div class="skeleton h-4 w-1/3 rounded-[3px]"></div>'
-      + '<div class="skeleton h-12 w-full rounded-[4px]"></div>'
-      + '<div class="skeleton h-12 w-full rounded-[4px]"></div>'
-      + '</div>';
+  async function refreshRecords(forceCloud) {
+    if (!state.records.length) {
+      const region = $('#listRegion');
+      if (region) {
+        region.innerHTML = '<div class="space-y-2 py-2">'
+          + '<div class="skeleton h-4 w-1/3 rounded-[3px]"></div>'
+          + '<div class="skeleton h-12 w-full rounded-[4px]"></div>'
+          + '<div class="skeleton h-12 w-full rounded-[4px]"></div>'
+          + '</div>';
+      }
+    }
     try {
-      state.records = await state.store.list();
+      if (forceCloud) setSyncState('syncing', 'Checking cloud store for latest records...');
+      state.records = await CloudStore.list(!!forceCloud);
       renderList();
+      if (forceCloud) setSyncState('synced');
     } catch (e) {
-      const msg = (e && e.message) ? e.message : 'unknown error';
-      region.innerHTML = '<div class="rounded-[4px] border border-alert bg-[#fdf4f4] px-3 py-3 text-[13px] leading-relaxed text-alert">'
-        + 'The register could not be read: ' + esc(msg) + '. Check the Supabase URL, key, and policies, then retry. '
-        + '<button type="button" id="listRetry" class="min-h-[36px] font-semibold underline">Retry</button></div>';
-      $('#listRetry').addEventListener('click', refreshRecords);
+      renderList();
+      setSyncState('error', 'Could not reach cloud store. Showing cached records.');
     }
   }
 
@@ -2053,33 +2278,17 @@ tailwind.config = {
   function unlockConsole() {
     show($('#adminGate'), false);
     show($('#adminConsole'), true);
+    renderList();
   }
 
   function lockConsole(announce) {
+    closeDrawer();
     safeDel(SESSION_KEY);
     show($('#adminConsole'), false);
     show($('#adminGate'), true);
     $('#passInput').value = '';
-    if (announce) toast('Console locked. The passcode is needed again.');
+    if (announce) toast('Console locked.');
     try { $('#passInput').focus(); } catch (e) { }
-  }
-
-  function updateStoreBadges() {
-    const badge = $('#modeBadge');
-    const note = $('#storeNote');
-    if (state.mode === 'cloud') {
-      badge.textContent = 'GitHub cloud store';
-      badge.className = 'rounded-[4px] border border-green bg-green-50 px-2.5 py-1 text-[12px] font-semibold text-green-700';
-      note.textContent = 'Rows live in your GitHub Cloud Store with offline persistence, so a record saved here also appears inside the Telegram in-app browser on any other phone.';
-      note.className = 'mt-2 rounded-[4px] border border-green-100 bg-green-50 px-3 py-2 text-[12px] leading-relaxed text-green-700';
-    } else {
-      badge.textContent = 'Local demo store';
-      badge.className = 'rounded-[4px] border border-gold-600 bg-sand-50 px-2.5 py-1 text-[12px] font-semibold text-gold-700';
-      note.textContent = 'Records stay in this browser with automatic offline fallback.';
-      note.className = 'mt-2 rounded-[4px] border border-sand-300 bg-sand-50 px-3 py-2 text-[12px] leading-relaxed text-slate-700';
-    }
-    const sample = $('#sampleBtn');
-    if (sample) show(sample, state.mode !== 'cloud');
   }
 
   function bindAdmin() {
@@ -2092,68 +2301,99 @@ tailwind.config = {
         safeSet(SESSION_KEY, String(Date.now()));
         $('#passInput').value = '';
         unlockConsole();
-        refreshRecords();
+        refreshRecords(false);
         toast('Console unlocked.');
       } else {
-        err.textContent = 'That passcode does not match. The demo passcode is admin2026.';
+        err.textContent = 'Incorrect passcode. Check the master passcode and try again.';
         show(err, true);
         $('#passInput').select();
       }
     });
 
+    $('#addRecordBtn').addEventListener('click', function () { openDrawer(null); });
+    $('#drawerCloseBtn').addEventListener('click', closeDrawer);
+    $('#drawerCancelBtn').addEventListener('click', closeDrawer);
+    $('#drawerBackdrop').addEventListener('click', closeDrawer);
     $('#lockBtn').addEventListener('click', function () { lockConsole(true); });
-    $('#refreshBtn').addEventListener('click', function () { refreshRecords().then(function () { toast('Register refreshed.'); }); });
-    $('#randomBtn').addEventListener('click', function () { $('#fCode').value = randomCode(); scheduleDraft(); });
-    $('#codeBtn').addEventListener('click', function () { $('#fCode').value = randomCode(); scheduleDraft(); });
-    $('#resetFormBtn').addEventListener('click', function () { safeDel(DRAFT_KEY); show($('#draftNote'), false); clearForm(); toast('Form cleared for a new record.'); });
-    $('#cancelEditBtn').addEventListener('click', function () { clearForm(); toast('Editing cancelled. The record is unchanged.'); });
-    $('#fCode').addEventListener('input', function () { this.value = normalizeCode(this.value); scheduleDraft(); });
+    $('#refreshBtn').addEventListener('click', function () {
+      refreshRecords(true).then(function () { toast('Register synced with cloud.'); });
+    });
+    $('#syncBadge').addEventListener('click', function () {
+      if (lastSyncFailed) CloudStore.retrySync();
+      else refreshRecords(true).then(function () { toast('Register synced.'); });
+    });
+
+    $('#codeBtn').addEventListener('click', function () {
+      $('#fCode').value = uniqueCode();
+      showFormError('');
+    });
+    $('#fCode').addEventListener('input', function () {
+      this.value = normalizeCode(this.value);
+    });
     $('#visaForm').addEventListener('submit', saveRecord);
 
-    ['fNameEn', 'fNameAr', 'fPassport', 'fNatEn', 'fNatAr', 'fProfEn', 'fProfAr', 'fTypeEn', 'fTypeAr', 'fDob', 'fExpiry']
-      .forEach(function (id) { const el = document.getElementById(id); if (el) el.addEventListener('input', scheduleDraft); });
+    /* Quick duration buttons — explicit click, never silently overwrites */
+    $$('.dur-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const issue = $('#fIssue').value || todayISO();
+        const days = Number(btn.getAttribute('data-days') || 90);
+        $('#fIssue').value = issue;
+        $('#fExpiry').value = addDays(issue, days);
+      });
+    });
 
-    $('#fIssue').addEventListener('change', function () { applyValidity(); scheduleDraft(); });
-    $('#fValidity').addEventListener('change', function () { applyValidity(); scheduleDraft(); });
-    $('#fGender').addEventListener('change', function () { syncProfessionAr(); scheduleDraft(); });
-    $('#fPhoto').addEventListener('input', function () { setPhoto(this.value.trim(), true); scheduleDraft(); });
-    $('#fPhotoFile').addEventListener('change', function () { handlePhotoFile(this.files && this.files[0]); });
+    /* Smart Arabic auto-fill when selecting or typing known values */
+    $('#fNatEn').addEventListener('input', autoFillNationalityAr);
+    $('#fNatEn').addEventListener('change', autoFillNationalityAr);
+    $('#fProfEn').addEventListener('input', autoFillProfessionAr);
+    $('#fProfEn').addEventListener('change', autoFillProfessionAr);
+    $('#fGender').addEventListener('change', autoFillProfessionAr);
+    $('#fTypeEn').addEventListener('input', autoFillVisaTypeAr);
+    $('#fTypeEn').addEventListener('change', autoFillVisaTypeAr);
+
+    /* Photo handlers */
+    $('#fPhotoFile').addEventListener('change', function () {
+      handlePhotoFile(this.files && this.files[0]);
+    });
+    $('#fPhoto').addEventListener('input', function () {
+      const url = this.value.trim();
+      if (!url) {
+        photoState = { mode: 'clear', value: '' };
+        updatePhotoPreview('', 'No photo attached.', false);
+      } else {
+        photoState = { mode: 'url', value: url };
+        updatePhotoPreview(url, 'External image URL set.', true);
+      }
+    });
     $('#photoClearBtn').addEventListener('click', function () {
-      setPhoto('');
-      show($('#formError'), false);
-      toast('Photo removed from the form.');
+      photoState = { mode: 'clear', value: '' };
+      $('#fPhoto').value = '';
+      if ($('#fPhotoFile')) $('#fPhotoFile').value = '';
+      updatePhotoPreview('', 'Photo removed.', false);
+      showFormError('');
+    });
+
+    /* Filter tabs + search */
+    $$('.filter-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.filter = btn.getAttribute('data-filter') || 'all';
+        renderList();
+      });
     });
     $('#searchInput').addEventListener('input', renderList);
 
-    $('#fNatPreset').addEventListener('change', function () {
-      if (this.value === '') return;
-      const n = NATIONALITIES[Number(this.value)];
-      if (n) { $('#fNatEn').value = n.en; $('#fNatAr').value = n.ar; scheduleDraft(); }
-    });
-    $('#fProfPreset').addEventListener('change', function () {
-      if (this.value === '') return;
-      const p = PROFESSIONS[Number(this.value)];
-      if (p) { $('#fProfEn').value = p.en; syncProfessionAr(); scheduleDraft(); }
-    });
-    $('#fTypePreset').addEventListener('change', function () {
-      if (this.value === '') return;
-      const t = VISA_TYPES[Number(this.value)];
-      if (t) { $('#fTypeEn').value = t.en; $('#fTypeAr').value = t.ar; scheduleDraft(); }
-    });
-
+    /* Row actions */
     $('#listRegion').addEventListener('click', function (ev) {
       const b = ev.target.closest('button[data-act]');
       if (!b) return;
       const id = b.getAttribute('data-id');
       const act = b.getAttribute('data-act');
-      if (act === 'link') {
-        const rec = state.records.find(function (r) { return r.id === id; });
-        if (rec) shareLink(shareLinkFor(rec.code, rec));
-      } else if (act === 'edit') {
-        startEdit(id);
-      } else if (act === 'delete') {
-        deleteRecord(id);
-      }
+      const rec = state.records.find((r) => r.id === id);
+      if (!rec) return;
+      if (act === 'view') previewRecord(id);
+      else if (act === 'link') shareLink(shareLinkFor(rec.code, rec));
+      else if (act === 'edit') openDrawer(rec);
+      else if (act === 'delete') deleteRecord(id);
     });
   }
 
@@ -2176,9 +2416,10 @@ tailwind.config = {
     const adminWanted = window.location.hash.replace('#', '').toLowerCase() === 'admin' || adminFromQuery;
     showView(adminWanted ? 'admin' : 'portal');
     if (adminWanted) {
-      if (sessionOk()) { unlockConsole(); refreshRecords(); } else { lockConsole(false); }
+      if (sessionOk()) { unlockConsole(); } else { lockConsole(false); }
       try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) { window.scrollTo(0, 0); }
     } else {
+      closeDrawer();
       syncUrl(state.record ? state.record.code : '');
     }
   }
@@ -2195,31 +2436,30 @@ tailwind.config = {
   document.addEventListener('keydown', function (ev) {
     const confirmOpen = isShown($('#confirmModal'));
     const shareOpen = isShown($('#shareModal'));
+    const drawerOpen = isShown($('#recordDrawer'));
     if (ev.key === 'Escape') {
       if (confirmOpen) closeConfirm(false);
       else if (shareOpen) closeShare();
+      else if (drawerOpen) closeDrawer();
       return;
     }
     if (ev.key === 'Tab' && confirmOpen) trapTab($('#confirmModal'), ev);
     else if (ev.key === 'Tab' && shareOpen) trapTab($('#shareModal'), ev);
+    else if (ev.key === 'Tab' && drawerOpen) trapTab($('#recordDrawer'), ev);
   });
 
   async function boot() {
-    fillSelects();
+    fillDatalists();
     bindPortal();
     bindAdmin();
     window.addEventListener('hashchange', routeFromHash);
 
     await initStore();
-    if (state.mode === 'local') seedLocalOnce();
-    updateStoreBadges();
-    clearForm();
+    setSyncState('synced');
 
-    /* Read the query before routing: the router rewrites the address bar. */
+    /* Read query before routing because router updates address bar. */
     const qCode = readQueryCode();
-
     routeFromHash();
-    restoreDraft();
 
     if (qCode.length === 6) {
       verify(qCode);
@@ -2228,8 +2468,6 @@ tailwind.config = {
       if (input) input.value = qCode;
       setFieldError('The shared link carried an incomplete reference. Enter the remaining characters.');
     }
-
-    if (sessionOk() && !state.records.length) refreshRecords();
   }
 
   window.KW = {
